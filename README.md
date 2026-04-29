@@ -238,3 +238,10 @@ the backend.
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+Fork the repository and clone it to your local machine
+Create a new branch for your changes
+Make and test your updates following the project guidelines
+Commit and push your changes to your fork
+Open a Pull Request with a clear description
