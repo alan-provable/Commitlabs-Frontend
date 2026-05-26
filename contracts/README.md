@@ -36,7 +36,10 @@ create_commitment ──► fund_escrow ──► release            (matured: p
 | Function | Description |
 | --- | --- |
 | `initialize(admin, token, fee_recipient)` | One-time setup of admin, escrow token (SAC) and penalty fee recipient. |
-| `create_commitment(owner, asset, amount, risk, duration_days, penalty_bps)` | Create an unfunded commitment; returns its `id`. |
+`create_commitment(owner, asset, amount, risk, duration_days, penalty_bps)` | Create an unfunded commitment; returns its `id`.
+
+Overflow behavior: `duration_days` is converted into an absolute maturity timestamp using checked arithmetic. If the conversion overflows, the call fails with `InvalidDuration`. |
+
 | `fund_escrow(commitment_id)` | Transfer `amount` from owner into the contract (`Created → Funded`). |
 | `release(commitment_id, caller)` | Return principal to owner once matured (`Funded → Released`). |
 | `refund(commitment_id)` | Early-exit refund of principal minus `penalty_bps` (`Funded → Refunded`). |

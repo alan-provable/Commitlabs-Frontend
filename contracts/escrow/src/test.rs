@@ -207,3 +207,49 @@ fn owner_index_tracks_commitments() {
     assert_eq!(ids.get(0).unwrap(), a);
     assert_eq!(ids.get(1).unwrap(), b);
 }
+
+#[test]
+fn create_rejects_duration_seconds_overflow() {
+    let f = setup();
+    let owner = Address::generate(&f.env);
+    fund_owner(&f, &owner, 1_000);
+
+    // duration_seconds = duration_days * SECONDS_PER_DAY (checked_mul)
+    // Force overflow in the multiplication stage.
+    let duration_days: u32 = u32::MAX;
+
+    let res = f.client.try_create_commitment(
+        &owner,
+        &f.asset,
+        &1_000,
+        &RiskProfile::Safe,
+        &duration_days,
+        &200,
+    );
+    assert_eq!(res, Err(Ok(Error::InvalidDuration)));
+}
+
+#[test]
+fn create_rejects_maturity_timestamp_overflow() {
+    let f = setup();
+    let owner = Address::generate(&f.env);
+    fund_owner(&f, &owner, 1_000);
+
+    // Force overflow in the addition stage: maturity = now + duration_seconds.
+    // Set now close to u64::MAX, then choose a non-zero duration that will overflow.
+    let near_max = u64::MAX - (SECONDS_PER_DAY - 1);
+    f.env.ledger().set_timestamp(near_max);
+
+    let duration_days: u32 = 1;
+    let res = f.client.try_create_commitment(
+        &owner,
+        &f.asset,
+        &1_000,
+        &RiskProfile::Safe,
+        &duration_days,
+        &200,
+    );
+
+    assert_eq!(res, Err(Ok(Error::InvalidDuration)));
+}
+
