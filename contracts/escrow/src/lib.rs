@@ -36,6 +36,8 @@ pub enum DataKey {
     FeeRecipient,
     /// Dispute record for a commitment, keyed by commitment id.
     Dispute(u64),
+    /// Default penalty in basis points for each RiskProfile.
+    DefaultPenalty(RiskProfile),
 }
 
 /// Risk profile chosen at creation time. Determines the early-exit penalty
@@ -140,24 +142,58 @@ pub struct EscrowContract;
 
 #[contractimpl]
 impl EscrowContract {
-    /// One-time initialization. Sets the admin, the escrow token and the fee
-    /// recipient. Must be called before any commitment is created.
+    /// One-time initialization. Sets the admin, the escrow token, fee recipient,
+    /// and default penalty rates for each risk profile. Default penalties should
+    /// match the risk tier (e.g., Safe 200 bps [2%], Balanced 300 bps [3%],
+    /// Aggressive 500 bps [5%]).
+    ///
+    /// # Arguments
+    /// * `admin` - Administrator address (can resolve disputes)
+    /// * `token` - Escrow token (SAC) address
+    /// * `fee_recipient` - Address that receives early-exit penalties
+    /// * `safe_default_penalty_bps` - Default penalty for Safe risk profile (in basis points)
+    /// * `balanced_default_penalty_bps` - Default penalty for Balanced risk profile
+    /// * `aggressive_default_penalty_bps` - Default penalty for Aggressive risk profile
     pub fn initialize(
         env: Env,
         admin: Address,
         token: Address,
         fee_recipient: Address,
+        safe_default_penalty_bps: u32,
+        balanced_default_penalty_bps: u32,
+        aggressive_default_penalty_bps: u32,
     ) -> Result<(), Error> {
         if env.storage().instance().has(&DataKey::Admin) {
             return Err(Error::AlreadyInitialized);
         }
         admin.require_auth();
+
+        // Validate penalty values.
+        if safe_default_penalty_bps > MAX_PENALTY_BPS
+            || balanced_default_penalty_bps > MAX_PENALTY_BPS
+            || aggressive_default_penalty_bps > MAX_PENALTY_BPS
+        {
+            return Err(Error::PenaltyTooHigh);
+        }
+
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Token, &token);
         env.storage()
             .instance()
             .set(&DataKey::FeeRecipient, &fee_recipient);
         env.storage().instance().set(&DataKey::NextId, &0u64);
+
+        // Store default penalties for each risk profile.
+        env.storage()
+            .instance()
+            .set(&DataKey::DefaultPenalty(RiskProfile::Safe), &safe_default_penalty_bps);
+        env.storage()
+            .instance()
+            .set(&DataKey::DefaultPenalty(RiskProfile::Balanced), &balanced_default_penalty_bps);
+        env.storage()
+            .instance()
+            .set(&DataKey::DefaultPenalty(RiskProfile::Aggressive), &aggressive_default_penalty_bps);
+
         Ok(())
     }
 
@@ -187,6 +223,65 @@ impl EscrowContract {
         if penalty_bps > MAX_PENALTY_BPS {
             return Err(Error::PenaltyTooHigh);
         }
+
+        let id = Self::next_id(&env);
+        let now = env.ledger().timestamp();
+        let maturity = now + (duration_days as u64) * SECONDS_PER_DAY;
+
+        let commitment = Commitment {
+            id,
+            owner: owner.clone(),
+            asset,
+            amount,
+            risk,
+            status: EscrowStatus::Created,
+            maturity,
+            penalty_bps,
+            compliance_score: 100,
+            created_at: now,
+        };
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::Commitment(id), &commitment);
+        Self::index_owner(&env, &owner, id);
+
+        env.events().publish(
+            (Symbol::new(&env, "create_commitment"), owner),
+            (id, amount, maturity),
+        );
+        Ok(id)
+    }
+
+    /// Create a new (unfunded) commitment escrow using the default penalty for
+    /// the specified risk profile. Returns the new commitment id.
+    ///
+    /// This function inherits the penalty_bps from the risk profile defaults
+    /// configured at initialization time. If an explicit penalty override is
+    /// needed, use `create_commitment()` instead.
+    ///
+    /// `duration_days` is converted to an absolute maturity timestamp using the
+    /// current ledger time.
+    pub fn create_commitment_with_default_penalty(
+        env: Env,
+        owner: Address,
+        asset: Address,
+        amount: i128,
+        risk: RiskProfile,
+        duration_days: u32,
+    ) -> Result<u64, Error> {
+        Self::require_init(&env)?;
+        owner.require_auth();
+
+        if amount <= 0 {
+            return Err(Error::InvalidAmount);
+        }
+        if duration_days == 0 {
+            return Err(Error::InvalidDuration);
+        }
+
+        // Retrieve the default penalty for this risk profile.
+        let penalty_bps = Self::get_default_penalty_internal(&env, risk)?;
 
         let id = Self::next_id(&env);
         let now = env.ledger().timestamp();
@@ -435,6 +530,17 @@ impl EscrowContract {
             .get(&DataKey::Dispute(commitment_id))
     }
 
+    /// Retrieve the default penalty (in basis points) for a specific risk profile.
+    /// Configured at initialization time and used by
+    /// `create_commitment_with_default_penalty()`. Useful for querying the
+    /// current penalty configuration.
+    pub fn get_default_penalty(env: Env, risk: RiskProfile) -> Result<u32, Error> {
+        env.storage()
+            .instance()
+            .get(&DataKey::DefaultPenalty(risk))
+            .ok_or(Error::NotInitialized)
+    }
+
     // ── Internal helpers ────────────────────────────────────────────────────
 
     fn require_init(env: &Env) -> Result<(), Error> {
@@ -442,6 +548,15 @@ impl EscrowContract {
             return Err(Error::NotInitialized);
         }
         Ok(())
+    }
+
+    /// Retrieve the default penalty for a risk profile (internal use).
+    /// Returns NotInitialized if the contract has not been initialized.
+    fn get_default_penalty_internal(env: &Env, risk: RiskProfile) -> Result<u32, Error> {
+        env.storage()
+            .instance()
+            .get(&DataKey::DefaultPenalty(risk))
+            .ok_or(Error::NotInitialized)
     }
 
     fn next_id(env: &Env) -> u64 {
