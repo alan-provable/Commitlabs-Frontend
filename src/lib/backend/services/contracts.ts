@@ -92,6 +92,19 @@ export interface SettleCommitmentOnChainResult {
   contractVersion?: string;
 }
 
+export interface EarlyExitCommitmentOnChainParams {
+  commitmentId: string;
+  callerAddress?: string;
+}
+
+export interface EarlyExitCommitmentOnChainResult {
+  exitAmount: string;
+  penaltyAmount: string;
+  finalStatus: string;
+  txHash?: string;
+  reference?: string;
+}
+
 type ContractCallMode = "read" | "write";
 interface ContractInvocationResult {
   value: unknown;
@@ -985,7 +998,7 @@ export async function earlyExitCommitmentOnChain(
       reference: invocation.txHash ? undefined : `TODO_CHAIN_CALL_EARLY_EXIT`
     };
   } catch (error) {
-    throw normalizeBackendError(error, {
+    throw normalizeContractError(error, {
       code: 'BLOCKCHAIN_CALL_FAILED',
       message: 'Unable to exit commitment early on chain.',
       status: 502,
