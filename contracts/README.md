@@ -1,3 +1,13 @@
+### Admin and Fee Recipient Rotation
+
+The contract supports secure rotation of the admin and fee recipient addresses after initialization:
+
+| Function | Description |
+| --- | --- |
+| `set_admin(new_admin)` | Admin-only. Rotates the contract admin to `new_admin`. Emits an event. |
+| `set_fee_recipient(new_fee_recipient)` | Admin-only. Rotates the protocol fee recipient. Emits an event. |
+
+Both functions require the current admin to authorize the call. Rotation is rejected if the contract is not initialized. Events are emitted for auditability.
 # CommitLabs Soroban Contracts
 
 Soroban (Rust) smart-contract workspace backing the CommitLabs liquidity

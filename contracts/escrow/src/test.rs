@@ -1,3 +1,39 @@
+#[test]
+fn admin_can_rotate_admin_and_fee_recipient() {
+    let f = setup();
+    let new_admin = Address::generate(&f.env);
+    let new_fee = Address::generate(&f.env);
+
+    // Only admin can rotate admin
+    f.env.set_auths(&[&f.admin]);
+    f.client.set_admin(&new_admin);
+    // Only new admin can rotate fee recipient
+    f.env.set_auths(&[&new_admin]);
+    f.client.set_fee_recipient(&new_fee);
+
+    // Check storage
+    let stored_admin: Address = f.env.storage().instance().get(&DataKey::Admin).unwrap();
+    let stored_fee: Address = f.env.storage().instance().get(&DataKey::FeeRecipient).unwrap();
+    assert_eq!(stored_admin, new_admin);
+    assert_eq!(stored_fee, new_fee);
+}
+
+#[test]
+fn unauthorized_cannot_rotate_admin_or_fee_recipient() {
+    let f = setup();
+    let new_admin = Address::generate(&f.env);
+    let new_fee = Address::generate(&f.env);
+    let not_admin = Address::generate(&f.env);
+
+    // Not admin tries to rotate admin
+    f.env.set_auths(&[&not_admin]);
+    let res = f.client.try_set_admin(&new_admin);
+    assert_eq!(res, Err(Ok(Error::Unauthorized)));
+
+    // Not admin tries to rotate fee recipient
+    let res2 = f.client.try_set_fee_recipient(&new_fee);
+    assert_eq!(res2, Err(Ok(Error::Unauthorized)));
+}
 #![cfg(test)]
 
 use super::*;
