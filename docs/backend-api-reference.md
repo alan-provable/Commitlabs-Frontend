@@ -141,10 +141,11 @@ curl -X POST http://localhost:3000/api/commitments \
 
 ## `POST /api/commitments/[id]/settle`
 
-Marks the commitment identified by `id` as settled.  Currently a stub that emits
-`CommitmentSettled` events.
+Marks the commitment identified by `id` as settled.  Currently a stub that emits `CommitmentSettled` events.
 
 - **Path parameter**: `id` (string)
+- **Headers**:
+    - `Idempotency-Key`: (Optional) A unique string to identify the request and prevent duplicate processing. Replayed requests within the 24-hour replay window return the original prior result.
 - **Request body**: optional JSON payload with additional details.
 - **Response**: stub confirmation message.
 
@@ -167,10 +168,11 @@ curl -X POST http://localhost:3000/api/commitments/abc123/settle \
 
 ## `POST /api/commitments/[id]/early-exit`
 
-Triggers an early exit (with penalty) for the named commitment.  Emits
-`CommitmentEarlyExit` events.
+Triggers an early exit (with penalty) for the named commitment.  Emits `CommitmentEarlyExit` events.
 
 - **Path parameter**: `id` (string)
+- **Headers**:
+    - `Idempotency-Key`: (Optional) A unique string to identify the request and prevent duplicate processing. Replayed requests within the 24-hour replay window return the original prior result.
 - **Request body**: optional JSON with penalty or reason.
 - **Response**: stub message.
 
