@@ -29,6 +29,7 @@ export const CacheKey = {
     `commitlabs:user-commitments:${ownerAddress}`,
   marketplaceListings: (queryHash: string) =>
     `commitlabs:marketplace:listings:${queryHash}`,
+  marketplaceStats: () => `commitlabs:marketplace:stats`,
 } as const;
 
 /** TTL in seconds — keep short so stale chain data doesn't linger. */
@@ -36,4 +37,5 @@ export const CacheTTL = {
   COMMITMENT_DETAIL: 30,
   USER_COMMITMENTS: 20,
   MARKETPLACE_LISTINGS: 15,
+  MARKETPLACE_STATS: 30,
 } as const;
