@@ -1,4 +1,5 @@
-import { createHash } from 'node:crypto';
+// @ts-ignore
+import { createHash } from 'crypto';
 
 /**
  * Generates a stable ETag from a serialized payload.

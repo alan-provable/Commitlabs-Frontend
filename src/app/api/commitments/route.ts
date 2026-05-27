@@ -35,12 +35,6 @@ const COMMITMENTS_CORS_POLICY = {
 
 export const OPTIONS = createCorsOptionsHandler(COMMITMENTS_CORS_POLICY);
 
-  if (!ownerAddress) {
-    return fail("BAD_REQUEST", "Missing ownerAddress", undefined, 400);
-  }
-
-  if (page < 1 || pageSize < 1 || pageSize > 100) {
-    return fail("BAD_REQUEST", "Invalid pagination params", undefined, 400);
 export const GET = withApiHandler(async (req: NextRequest, _context, correlationId) => {
   const { searchParams } = new URL(req.url);
   const queryResult = CommitmentsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
@@ -80,7 +74,7 @@ export const GET = withApiHandler(async (req: NextRequest, _context, correlation
   const items = mapped.slice(start, start + pageSize);
 
   return ok({ items, page, pageSize, total }, undefined, 200, correlationId);
-}, { cors: COMMITMENTS_CORS_POLICY });
+}, { cors: COMMITMENTS_CORS_POLICY, enableETag: true });
 
 export const POST = withApiHandler(async (req: NextRequest, _context, correlationId) => {
   const ip = getClientIp(req);
@@ -95,30 +89,24 @@ export const POST = withApiHandler(async (req: NextRequest, _context, correlatio
   const { ownerAddress, asset, amount, durationDays, maxLossBps, metadata } = body;
 
   if (!ownerAddress || typeof ownerAddress !== "string") {
-    return fail("BAD_REQUEST", "Invalid ownerAddress", undefined, 400);
-
-    return fail("BAD_REQUEST", "Invalid ownerAddress", undefined, 400, correlationId);
+    throw new ValidationError("Invalid ownerAddress");
   }
   try {
     validateStellarAddress(ownerAddress, "ownerAddress");
   } catch {
-    return fail("BAD_REQUEST", "Invalid ownerAddress: must be a valid Stellar address (G... format).", undefined, 400, correlationId);
+    throw new ValidationError("Invalid ownerAddress: must be a valid Stellar address (G... format).");
   }
   if (!asset || typeof asset !== "string") {
-    return fail("BAD_REQUEST", "Invalid asset", undefined, 400);
-    return fail("BAD_REQUEST", "Invalid asset", undefined, 400, correlationId);
+    throw new ValidationError("Invalid asset");
   }
   if (!amount || isNaN(Number(amount))) {
-    return fail("BAD_REQUEST", "Invalid amount", undefined, 400);
-    return fail("BAD_REQUEST", "Invalid amount", undefined, 400, correlationId);
+    throw new ValidationError("Invalid amount");
   }
   if (!durationDays || durationDays <= 0) {
-    return fail("BAD_REQUEST", "Invalid durationDays", undefined, 400);
-    return fail("BAD_REQUEST", "Invalid durationDays", undefined, 400, correlationId);
+    throw new ValidationError("Invalid durationDays");
   }
   if (maxLossBps == null || maxLossBps < 0) {
-    return fail("BAD_REQUEST", "Invalid maxLossBps", undefined, 400);
-    return fail("BAD_REQUEST", "Invalid maxLossBps", undefined, 400, correlationId);
+    throw new ValidationError("Invalid maxLossBps");
   }
 
   const result = await createCommitmentOnChain({
