@@ -2,6 +2,10 @@ import { defineConfig } from 'vitest/config';
 import path from 'path';
 
 export default defineConfig({
+  oxc: false,
+  esbuild: {
+    jsx: 'automatic',
+  },
   test: {
     globals: true,
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
