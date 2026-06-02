@@ -176,6 +176,49 @@ curl -X POST http://localhost:3000/api/commitments/abc123/settle \
 
 ---
 
+## `GET /api/commitments/[id]/settle/preview`
+
+Returns a preview of whether a commitment is eligible for settlement and an estimated settlement amount. Reuses the maturity and status checks from the settlement logic without mutating chain state.
+
+- **Path parameter**: `id` (string) — The commitment ID to preview settlement for.
+- **Query parameters**: none.
+- **Response**:
+  - `200 OK`: Settlement preview completed. Returns the eligibility status and estimated settlement value.
+  - `404 Not Found`: Commitment does not exist.
+  - `429 Too Many Requests`: Rate limit exceeded.
+
+### Example
+
+```bash
+curl -X GET http://localhost:3000/api/commitments/abc123/settle/preview
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "eligible": true,
+    "reason": null,
+    "estimatedSettlement": "1000.50"
+  }
+}
+```
+
+If the commitment is not eligible:
+
+```json
+{
+  "success": true,
+  "data": {
+    "eligible": false,
+    "reason": "Commitment has not matured yet and cannot be settled.",
+    "estimatedSettlement": "1000.50"
+  }
+}
+```
+
+---
+
 ## `POST /api/commitments/[id]/fund`
 
 Funds an existing commitment that was previously created but not yet funded. The route validates ownership, enforces `CREATED` state, and submits the on-chain `fund_escrow` transaction.
