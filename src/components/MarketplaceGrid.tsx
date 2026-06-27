@@ -1,5 +1,6 @@
 import type { MarketplaceCardProps } from './MarketplaceCard'
 import { MarketplaceCard } from './MarketplaceCard'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export interface MarketplaceGridProps {
   items: MarketplaceCardProps[]
@@ -9,18 +10,11 @@ export function MarketplaceGrid({ items }: MarketplaceGridProps) {
   if (!items || items.length === 0) {
     return (
       <section className="mt-10" aria-label="Marketplace listings">
-        <div
-          id="marketplace-empty-state"
-          tabIndex={-1}
-          className="focus-ring rounded-[20px] px-6 py-8 text-center border border-[rgba(255,255,255,0.12)] bg-[radial-gradient(140%_140%_at_0%_0%,rgba(255,255,255,0.06),rgba(255,255,255,0.01)_65%),rgba(0,0,0,0.45)] shadow-[0_18px_45px_rgba(0,0,0,0.55),inset_0_0_0_1px_rgba(255,255,255,0.04)]"
-        >
-          <p className="text-[1.1rem] font-semibold mb-2">
-            No commitments available
-          </p>
-          <p className="text-[0.95rem] text-white/70">
-            New offers will appear here once they are listed.
-          </p>
-        </div>
+        <EmptyState
+          title="No commitments available"
+          description="New offers will appear here once they are listed."
+          className="rounded-[20px] px-6 border border-[rgba(255,255,255,0.12)] bg-[radial-gradient(140%_140%_at_0%_0%,rgba(255,255,255,0.06),rgba(255,255,255,0.01)_65%),rgba(0,0,0,0.45)] shadow-[0_18px_45px_rgba(0,0,0,0.55),inset_0_0_0_1px_rgba(255,255,255,0.04)]"
+        />
       </section>
     )
   }
