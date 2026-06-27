@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ScrollToTopButton from "@/components/landing-page/ui/ScrollToTop"
+import { ThemeProvider } from "@/components/theme/ThemeProvider"
 import { ToastProvider } from "@/components/toast/ToastProvider"
 import { CommandPaletteProvider } from "@/components/CommandPalette"
 import { NetworkMismatchBanner } from "@/components/wallet/NetworkMismatchBanner"
@@ -74,6 +75,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={["scroll-smooth", inter.variable, robotoMono.variable].join(' ')}
     >
       <head>
@@ -96,13 +98,15 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <a href="#main-content" className="skip-link">Skip to main content</a>
-        <ToastProvider>
-          <NetworkMismatchBanner />
-          {children}
-          <ScrollToTopButton />
-          <CommandPaletteProvider />
-        </ToastProvider>
+        <ThemeProvider>
+          <a href="#main-content" className="skip-link">Skip to main content</a>
+          <ToastProvider>
+            <NetworkMismatchBanner />
+            {children}
+            <ScrollToTopButton />
+            <CommandPaletteProvider />
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
