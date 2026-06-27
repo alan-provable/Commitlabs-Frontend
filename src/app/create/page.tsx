@@ -8,6 +8,7 @@ import CreateCommitmentStepReview from "@/components/CreateCommitmentStepReview"
 import CommitmentCreatedModal from "@/components/modals/Commitmentcreatedmodal";
 import { buildExplorerUrl, openExplorerUrl } from "@/utils/explorerLinks";
 import { useWallet } from "@/hooks/useWallet";
+import { AppShellLayout } from "@/components/shell/AppShellLayout";
 
 type CommitmentType = "safe" | "balanced" | "aggressive";
 
@@ -173,7 +174,7 @@ export default function CreateCommitment() {
   };
 
   return (
-    <>
+    <AppShellLayout>
       {step === 1 && (
         <CreateCommitmentStepSelectType
           selectedType={selectedType}
@@ -227,6 +228,6 @@ export default function CreateCommitment() {
           />
         </>
       )}
-    </>
+    </AppShellLayout>
   );
 }
