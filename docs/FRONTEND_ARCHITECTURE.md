@@ -245,6 +245,7 @@ Component file convention: shared React components in `src/` should use TypeScri
 
 | Component | File | Usage |
 |-----------|------|-------|
+| `EmptyState` | `src/components/ui/EmptyState.tsx` | Shared empty-state primitive used by `MyCommitmentsGrid`, `MarketplaceGrid`, `RecentAttestationsPanel`; accepts `title`, `description`, `icon`, `cta` (href or onClick) |
 | `ErrorLayout` | `src/components/ErrorLayout.tsx` | 500, 404, network-error, transaction-error pages |
 | `ErrorButton` | `src/components/ErrorButton.tsx` | Buttons on all error pages (supports `href`, `onClick`, `isExternal`) |
 | `Skeleton` | `src/components/Skeleton.tsx` | Generic shimmer placeholder |
