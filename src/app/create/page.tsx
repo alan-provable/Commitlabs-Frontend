@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CreateCommitmentStepSelectType from "@/components/CreateCommitmentStepSelectType";
 import CreateCommitmentStepConfigure from "@/components/CreateCommitmentStepConfigure";
 import CreateCommitmentStepReview from "@/components/CreateCommitmentStepReview";
 import CommitmentCreatedModal from "@/components/modals/Commitmentcreatedmodal";
 import { buildExplorerUrl, openExplorerUrl } from "@/utils/explorerLinks";
+import { useDraftPersistence, type DraftState } from "@/hooks/useDraftPersistence";
+import ResumeDraftPrompt from "@/components/create/ResumeDraftPrompt";
 
 type CommitmentType = "safe" | "balanced" | "aggressive";
 
@@ -22,6 +24,8 @@ function generateCommitmentId(): string {
 
 export default function CreateCommitment() {
   const router = useRouter();
+  const { draft, saveDraft, clearDraft } = useDraftPersistence();
+  const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState<CommitmentType | null>(null);
   const [commitmentType, setCommitmentType] =
@@ -33,6 +37,43 @@ export default function CreateCommitment() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [commitmentId, setCommitmentId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (draft) {
+      setShowResumePrompt(true);
+    }
+  }, [draft]);
+
+  const handleResumeDraft = () => {
+    if (draft) {
+      setStep(draft.step);
+      setSelectedType(draft.selectedType);
+      setCommitmentType(draft.commitmentType);
+      setAmount(draft.amount);
+      setAsset(draft.asset);
+      setDurationDays(draft.durationDays);
+      setMaxLossPercent(draft.maxLossPercent);
+      setShowResumePrompt(false);
+    }
+  };
+
+  const handleStartFresh = () => {
+    clearDraft();
+    setShowResumePrompt(false);
+  };
+
+  useEffect(() => {
+    const currentDraft: DraftState = {
+      step,
+      selectedType,
+      commitmentType,
+      amount,
+      asset,
+      durationDays,
+      maxLossPercent,
+    };
+    saveDraft(currentDraft);
+  }, [step, selectedType, commitmentType, amount, asset, durationDays, maxLossPercent, saveDraft]);
 
   // Build review data from actual configured values
   const getReviewData = () => {
@@ -129,6 +170,7 @@ export default function CreateCommitment() {
       const newCommitmentId = generateCommitmentId();
       setCommitmentId(newCommitmentId);
       setShowSuccessModal(true);
+      clearDraft();
     }, 2000);
   };
 
@@ -147,6 +189,7 @@ export default function CreateCommitment() {
     setAsset("XLM");
     setDurationDays(90);
     setMaxLossPercent(100);
+    clearDraft();
   };
 
   const handleCloseModal = () => {
@@ -166,7 +209,15 @@ export default function CreateCommitment() {
 
   return (
     <>
-      {step === 1 && (
+      {showResumePrompt && draft && (
+        <ResumeDraftPrompt
+          draft={draft}
+          onResume={handleResumeDraft}
+          onStartFresh={handleStartFresh}
+        />
+      )}
+      
+      {!showResumePrompt && step === 1 && (
         <CreateCommitmentStepSelectType
           selectedType={selectedType}
           onSelectType={handleSelectType}
@@ -175,7 +226,7 @@ export default function CreateCommitment() {
         />
       )}
 
-      {step === 2 && (
+      {!showResumePrompt && step === 2 && (
         <CreateCommitmentStepConfigure
           amount={amount}
           asset={asset}
@@ -196,7 +247,7 @@ export default function CreateCommitment() {
         />
       )}
 
-      {step === 3 && selectedType && (
+      {!showResumePrompt && step === 3 && selectedType && (
         <>
           <CreateCommitmentStepReview
             {...getReviewData()}
