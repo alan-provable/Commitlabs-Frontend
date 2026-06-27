@@ -13,6 +13,7 @@ import { useWallet } from '@/hooks/useWallet'
 import { Commitment, CommitmentStats } from '@/types/commitment'
 import { listCommitments } from '@/lib/backend/mocks/contracts'
 import { fetchProtocolConstants, ProtocolConstants } from '@/utils/protocol'
+import { getValidatedClientEnv } from '@/lib/clientEnv'
 
 const mockCommitments: Commitment[] = [
   {
@@ -158,7 +159,8 @@ export default function MyCommitments() {
   }, [])
 
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+    const clientEnv = getValidatedClientEnv()
+    if (clientEnv.NEXT_PUBLIC_USE_MOCKS === 'true') {
       setIsLoading(true)
       listCommitments()
         .then(setCommitmentsList)
