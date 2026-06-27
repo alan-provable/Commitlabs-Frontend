@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
+import { WalletAccountMenu } from "@/components/wallet/WalletAccountMenu";
 
 export const Navigation: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -95,6 +96,7 @@ export const Navigation: React.FC = () => {
             <kbd className="ml-1 text-[10px] text-white/20">⌘K</kbd>
           </button>
           <WalletConnectButton />
+          <WalletAccountMenu />
           {/* Mobile menu button */}
           <button
             type="button"

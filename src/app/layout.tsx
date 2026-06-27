@@ -3,6 +3,20 @@ import './globals.css'
 import ScrollToTopButton from "@/components/landing-page/ui/ScrollToTop"
 import { ToastProvider } from "@/components/toast/ToastProvider"
 import { CommandPaletteProvider } from "@/components/CommandPalette"
+import { Inter, Roboto_Mono } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
+const robotoMono = Roboto_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-roboto',
+})
 
 export const metadata: Metadata = {
   title: 'CommitLabs - Liquidity as a Commitment',
@@ -55,7 +69,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html
+      lang="en"
+      className={["scroll-smooth", inter.variable, robotoMono.variable].join(' ')}
+    >
       <head>
         <script
           type="application/ld+json"
@@ -86,3 +103,4 @@ export default function RootLayout({
     </html>
   )
 }
+
