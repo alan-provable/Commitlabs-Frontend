@@ -129,6 +129,25 @@ The sitemap at `src/app/sitemap.ts` enumerates **public routes only**.
 | `/commitments/overview` | Requires wallet connection |
 | `/settings` | Requires wallet connection |
 
+## Robots.txt
+
+The `src/app/robots.ts` file provides a dynamic `robots.txt` generated via a typed route. It returns a `MetadataRoute.Robots` object with generic allow rules and a `sitemap` reference that matches the dynamic sitemap URL.
+
+```ts
+import type { MetadataRoute } from 'next'
+
+const BASE_URL = 'https://commitlabs.com'
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [{ userAgent: '*', allow: '/' }],
+    sitemap: `${BASE_URL}/sitemap.xml`,
+  }
+}
+```
+
+This ensures that search engine crawlers receive up‑to‑date rules and a sitemap location that reflects the current deployment environment.
+
 ### Adding a new public route
 
 1. Add the route entry in `src/app/sitemap.ts`.
