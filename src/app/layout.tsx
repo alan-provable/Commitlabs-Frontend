@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import ScrollToTopButton from "@/components/landing-page/ui/ScrollToTop"
 import { ToastProvider } from "@/components/toast/ToastProvider"
+import { NetworkMismatchBanner } from "@/components/wallet/NetworkMismatchBanner"
 import { Inter, Roboto_Mono } from 'next/font/google'
 
 const inter = Inter({
@@ -94,6 +95,7 @@ export default function RootLayout({
       <body>
         <a href="#main-content" className="skip-link">Skip to main content</a>
         <ToastProvider>
+          <NetworkMismatchBanner />
           {children}
           <ScrollToTopButton />
         </ToastProvider>
