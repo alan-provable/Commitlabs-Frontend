@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import CreateCommitmentStepSelectType from "@/components/CreateCommitmentStepSelectType";
 import CreateCommitmentStepConfigure from "@/components/CreateCommitmentStepConfigure";
 import CreateCommitmentStepReview from "@/components/CreateCommitmentStepReview";
-import CommitmentCreatedModal from "@/components/modals/Commitmentcreatedmodal";
+import CommitmentCreatedModal from "@/components/modals/CommitmentCreatedModal";
 import { buildExplorerUrl, openExplorerUrl } from "@/utils/explorerLinks";
 
 type CommitmentType = "safe" | "balanced" | "aggressive";
@@ -33,6 +33,11 @@ export default function CreateCommitment() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [commitmentId, setCommitmentId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // In production this would come from the connected wallet hook.
+  // Passed as undefined while wallet integration is pending; the fund
+  // API accepts an optional callerAddress and validates it on-chain.
+  const callerAddress: string | undefined = undefined;
 
   // Build review data from actual configured values
   const getReviewData = () => {
@@ -154,6 +159,14 @@ export default function CreateCommitment() {
     router.push("/commitments");
   };
 
+  // Fund-later: close the success modal and go to the detail page so the
+  // user can fund the escrow from there at any time.
+  const handleFundLater = () => {
+    setShowSuccessModal(false);
+    const numericId = commitmentId.split("-")[1] || "1";
+    router.push(`/commitments/${numericId}`);
+  };
+
   const handleViewOnExplorer = () => {
     openExplorerUrl("tx", commitmentId, "testnet");
   };
@@ -209,9 +222,11 @@ export default function CreateCommitment() {
           <CommitmentCreatedModal
             isOpen={showSuccessModal}
             commitmentId={commitmentId}
+            callerAddress={callerAddress}
             onViewCommitment={handleViewCommitment}
             onCreateAnother={handleCreateAnother}
             onClose={handleCloseModal}
+            onFundLater={handleFundLater}
             onViewOnExplorer={commitmentExplorerUrl ? handleViewOnExplorer : undefined}
           />
         </>
