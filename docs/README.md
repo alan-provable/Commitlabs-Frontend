@@ -13,6 +13,7 @@ Welcome to the CommitLabs documentation index. This document serves as a single 
 ## 🏗 Architecture & Design Systems
 - **[ARCHITECTURE.md](../ARCHITECTURE.md)** (Root) — Global system design, modules, and soroban contract data flow.
 - **[FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md)** — Page routes mapping to React components and API routes, including wallet/auth state design.
+- **[CIRCULAR_DEPS.md](CIRCULAR_DEPS.md)** — Circular-dependency check with madge: config, the blocking CI gate, and how to break a reported cycle.
 - **[MODAL_SYSTEM.md](MODAL_SYSTEM.md)** — Architecture of the modal managers, custom context triggers, and backdrop animations.
 - **[TOAST_SYSTEM.md](TOAST_SYSTEM.md)** — Toast notification service, status emitters, and action triggers.
 
