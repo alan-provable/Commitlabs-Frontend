@@ -485,6 +485,7 @@ export default function Marketplace() {
                 totalCount={filteredListings.length}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
+                // pagination UI is now handled by infinite scroll in MarketplaceGrid
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
@@ -492,7 +493,14 @@ export default function Marketplace() {
                 {viewMode === 'grid' ? (
                   <ErrorBoundary>
                     <MarketplaceGrid
-                      items={pagedListings}
+                      queryParams={{
+                        sortBy: filters.sortBy,
+                        type: filters.commitmentType.join(','),
+                        minAmount: filters.priceRange[0],
+                        maxAmount: filters.priceRange[1],
+                        minCompliance: filters.minCompliance,
+                        maxLoss: filters.maxLoss,
+                      }}
                       isComparePinned={isPinned}
                       isCompareFull={isCompareFull}
                       onCompareToggle={(listing: MarketplaceCardProps) => toggleListing(listing)}
