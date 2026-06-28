@@ -78,7 +78,8 @@ api/
 - `src/lib/backend/cors.ts` defines `CorsRoutePolicy` objects that gate endpoints as `first-party` or `public`.
 - Rate limiting is applied per-IP via `checkRateLimit()` (`src/lib/backend/rateLimit.ts`).
 - Validation uses `zod` schemas at the top of each route handler.
-- API responses use helper functions `ok()` and `fail()` from `src/lib/backend/apiResponse.ts`.
+- API responses use helper functions `ok()`, `fail()`, and `attachSecurityHeaders()` from `src/lib/backend/apiResponse.ts`.
+- **Module Map / Canonical Utilities**: The `src/lib/backend/` directory is the single canonical source of truth for all API-related utilities and handlers. To prevent duplication and drift, backend utilities should not be placed or duplicated in `src/utils/`.
 
 ---
 
