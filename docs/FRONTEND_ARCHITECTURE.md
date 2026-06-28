@@ -243,21 +243,6 @@ Footer
 
 Component file convention: shared React components in `src/` should use TypeScript (`.ts`/`.tsx`) rather than untyped `.jsx` files.
 
-| Component | File | Usage |
-|-----------|------|-------|
-| `EmptyState` | `src/components/ui/EmptyState.tsx` | Shared empty-state primitive used by `MyCommitmentsGrid`, `MarketplaceGrid`, `RecentAttestationsPanel`; accepts `title`, `description`, `icon`, `cta` (href or onClick) |
-| `ErrorLayout` | `src/components/ErrorLayout.tsx` | 500, 404, network-error, transaction-error pages |
-| `ErrorButton` | `src/components/ErrorButton.tsx` | Buttons on all error pages (supports `href`, `onClick`, `isExternal`) |
-| `Skeleton` | `src/components/Skeleton.tsx` | Generic shimmer placeholder |
-| `WalletConnectButton` | `src/components/WalletConnectButton.tsx` | Connect/disconnect wallet; uses `useWallet` |
-| `TrustBadge` | `src/components/TrustBadge.tsx` | Verified/reputable/unverified badge |
-| `NFTDisplay` | `src/components/NFTDisplay.tsx` | NFT metadata display |
-| `ReputationDisplay` | `src/components/ReputationDisplay.tsx` | User reputation score |
-| `KPICard` | `src/components/KPICard/` | Stat card (label + value) |
-| `VolatilityExposureMeter` | `src/components/VolatilityExposureMeter/` | Volatility indicator |
-| `ComparisonPanel` | `src/components/ComparisonPanel.tsx` | Side-by-side commitment comparison |
-| `BenefitCard` | `src/components/BenefitCard.tsx` | Feature card for landing page |
-| `WizardStepper` | `src/components/WizardStepper.tsx` | Step indicator for create wizard |
 
 ---
 
