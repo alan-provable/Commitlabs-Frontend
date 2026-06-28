@@ -12,17 +12,8 @@ import { AppShellLayout } from '@/components/shell/AppShellLayout'
 import { TrustBadge } from '@/components/TrustBadge'
 import { CompareTray } from '@/components/marketplace/CompareTray'
 import { useCompareListings } from '@/hooks/useCompareListings'
+import { useMarketplaceFilters, type Filters } from '@/hooks/useMarketplaceFilters'
 import type { MarketplaceCardProps } from '@/components/MarketplaceCard'
-
-// Interfaces matching the components
-interface Filters {
-  sortBy: string
-  commitmentType: ('balanced' | 'aggressive' | 'conservative')[]
-  priceRange: [number, number]
-  durationRange: [number, number]
-  minCompliance: number
-  maxLoss: number
-}
 
 
 // Listing type for marketplace items
@@ -358,14 +349,7 @@ export default function Marketplace() {
     removeListing,
     clearAll: clearCompareListings,
   } = useCompareListings()
-  const [filters, setFilters] = useState<Filters>({
-    sortBy: 'price',
-    commitmentType: ['balanced'],
-    priceRange: [0, 1000000],
-    durationRange: [0, 90],
-    minCompliance: 0,
-    maxLoss: 100,
-  })
+  const { filters, updateFilters } = useMarketplaceFilters()
 
   useEffect(() => {
     // Simulate loading for demo purposes
@@ -431,7 +415,7 @@ export default function Marketplace() {
   }, [filteredListings, currentPage])
 
   const handleFilterChange = (newFilters: Filters) => {
-    setFilters(newFilters)
+    updateFilters(newFilters)
     setCurrentPage(1)
   }
 
