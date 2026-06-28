@@ -14,6 +14,7 @@ import {
   X,
   Menu
 } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface NavItem {
@@ -199,36 +200,41 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ className = '' }) => {
             aria-label="Main navigation"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
-              {!isCollapsed && (
-                <Link
-                  href="/"
-                  className="flex items-center gap-3 font-medium text-white"
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  <span className="grid h-8 w-8 place-items-center rounded-full border border-[rgba(0,212,255,0.85)] bg-[rgba(8,12,16,0.95)] shadow-[0_0_14px_rgba(0,212,255,0.35)] text-base">
-                    C
-                  </span>
-                  <span className="text-lg">CommitLabs</span>
-                </Link>
-              )}
-              
-              {isCollapsed && (
-                <div className="w-full flex justify-center">
-                  <span className="grid h-8 w-8 place-items-center rounded-full border border-[rgba(0,212,255,0.85)] bg-[rgba(8,12,16,0.95)] shadow-[0_0_14px_rgba(0,212,255,0.35)] text-base text-white">
-                    C
-                  </span>
-                </div>
-              )}
+            <div className="flex items-center px-4 py-5 border-b border-white/10">
+              <div className="flex-1 flex items-center">
+                {!isCollapsed && (
+                  <Link
+                    href="/"
+                    className="flex items-center gap-3 font-medium text-white"
+                    onClick={() => setIsMobileOpen(false)}
+                  >
+                    <span className="grid h-8 w-8 place-items-center rounded-full border border-[rgba(0,212,255,0.85)] bg-[rgba(8,12,16,0.95)] shadow-[0_0_14px_rgba(0,212,255,0.35)] text-base">
+                      C
+                    </span>
+                    <span className="text-lg">CommitLabs</span>
+                  </Link>
+                )}
+                
+                {isCollapsed && (
+                  <div className="w-full flex justify-center">
+                    <span className="grid h-8 w-8 place-items-center rounded-full border border-[rgba(0,212,255,0.85)] bg-[rgba(8,12,16,0.95)] shadow-[0_0_14px_rgba(0,212,255,0.35)] text-base text-white">
+                      C
+                    </span>
+                  </div>
+                )}
+              </div>
 
-              {/* Close button for mobile */}
-              <button
-                onClick={toggleMobileMenu}
-                className="md:hidden text-white/70 hover:text-white"
-                aria-label="Close navigation menu"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                {!isCollapsed && <ThemeToggle />}
+                {/* Close button for mobile */}
+                <button
+                  onClick={toggleMobileMenu}
+                  className="md:hidden text-white/70 hover:text-white"
+                  aria-label="Close navigation menu"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             {/* Navigation Items */}

@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 import { WalletAccountMenu } from "@/components/wallet/WalletAccountMenu";
@@ -95,6 +96,7 @@ export const Navigation: React.FC = () => {
             <span>Search</span>
             <kbd className="ml-1 text-[10px] text-white/20">⌘K</kbd>
           </button>
+          <ThemeToggle />
           <WalletConnectButton />
           <WalletAccountMenu />
           {/* Mobile menu button */}
