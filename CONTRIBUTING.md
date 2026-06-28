@@ -9,6 +9,14 @@ Before diving into the code, please read through our [Developer Guide](./DEVELOP
 2. Ensure your fork is synced with the upstream `master` branch.
 3. Create a feature branch off of `master` using standard prefixes: `feat/<description>`, `fix/<description>`, `docs/<description>`, or `test/<description>`.
 
+## Toolchain
+This project pins its toolchain so contributors and CI run a consistent environment:
+
+- **Node.js**: version `20` (see [`.nvmrc`](./.nvmrc); run `nvm use` to switch). The `engines` field in `package.json` enforces `>=20 <21`.
+- **Package manager**: `pnpm@9` (declared via `packageManager` and `engines.pnpm`).
+
+`engine-strict=true` is set in `.npmrc`, so installs fail fast on an unsupported Node or pnpm version rather than producing subtle errors later.
+
 ## Pull Request Flow
 1. Commit your changes logically and with clear, descriptive commit messages.
 2. Push your feature branch to your fork.
