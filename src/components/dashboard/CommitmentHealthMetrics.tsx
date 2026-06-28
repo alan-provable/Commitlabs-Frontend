@@ -8,6 +8,7 @@ import { TrendingUp, TrendingDown, DollarSign, CheckCircle } from 'lucide-react'
 import HealthMetricsSkeleton from '../HealthMetricsSkeleton';
 import { ChartExportMenu } from './ChartExportMenu';
 import type { HealthMetricsExportData } from '@/utils/chartExport';
+import type { CommitmentExposureResult } from '@/utils/exposure';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -49,7 +50,7 @@ interface CommitmentHealthMetricsProps {
     valueHistoryData: Array<{ date: string; currentValue: number; initialAmount?: number }>;
     feeGenerationData: Array<{ date: string; feeAmount: number }>;
     thresholdPercent?: number;
-    volatilityPercent?: number;
+    exposure?: CommitmentExposureResult;
     isLoading?: boolean;
 }
 
@@ -60,7 +61,7 @@ export default function CommitmentHealthMetrics({
     valueHistoryData,
     feeGenerationData,
     thresholdPercent,
-    volatilityPercent,
+    exposure,
     isLoading = false,
 }: CommitmentHealthMetricsProps) {
     const [activeTab, setActiveTab] = useState<TabType>('value');
@@ -119,7 +120,7 @@ export default function CommitmentHealthMetrics({
                         />
                         <HealthMetricsValueHistoryChart
                             data={valueHistoryData}
-                            volatilityPercent={volatilityPercent}
+                            exposure={exposure}
                         />
                     </div>
                 )}
@@ -134,8 +135,8 @@ export default function CommitmentHealthMetrics({
                         />
                         <HealthMetricsDrawdownChart
                             data={drawdownData}
-                            thresholdPercent={thresholdPercent}
-                            volatilityPercent={volatilityPercent}
+                            thresholdPercent={thresholdPercent ?? exposure?.drawdownThresholdPercent}
+                            exposure={exposure}
                         />
                     </div>
                 )}
@@ -150,7 +151,7 @@ export default function CommitmentHealthMetrics({
                         />
                         <HealthMetricsFeeGenerationChart
                             data={feeGenerationData}
-                            volatilityPercent={volatilityPercent}
+                            exposure={exposure}
                         />
                     </div>
                 )}

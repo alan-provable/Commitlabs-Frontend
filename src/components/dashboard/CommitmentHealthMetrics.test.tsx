@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 
 import CommitmentHealthMetrics from './CommitmentHealthMetrics';
+import { EXPOSURE_ZONE_THRESHOLDS } from '@/utils/exposure';
 
 vi.mock('next/dynamic', () => ({
     default: (loader: () => Promise<{ default: React.ComponentType<Record<string, unknown>> }>) => {
@@ -93,6 +94,14 @@ const complianceData = [
     { date: '2026-02-01', complianceScore: 95 },
 ];
 
+const sampleExposure = {
+    status: 'ok' as const,
+    exposurePercent: 32,
+    level: 'low' as const,
+    drawdownThresholdPercent: 0.1,
+    zoneThresholds: EXPOSURE_ZONE_THRESHOLDS,
+};
+
 const baseProps = {
     commitmentId: 'commitment-1',
     valueHistoryData,
@@ -100,7 +109,7 @@ const baseProps = {
     feeGenerationData,
     complianceData,
     thresholdPercent: 10,
-    volatilityPercent: 3.2,
+    exposure: sampleExposure,
 };
 
 function renderComponent(overrides: Partial<typeof baseProps> = {}) {
@@ -155,12 +164,12 @@ describe('CommitmentHealthMetrics - initial render', () => {
         expect(drawdownButton.className).not.toContain('bg-[#222]');
     });
 
-    it('passes valueHistoryData and volatilityPercent to the value chart on initial render', () => {
+    it('passes valueHistoryData and exposure to the value chart on initial render', () => {
         renderComponent();
 
         expect((HealthMetricsValueHistoryChart as Mock).mock.calls[0][0]).toMatchObject({
                 data: valueHistoryData,
-                volatilityPercent: baseProps.volatilityPercent,
+                exposure: baseProps.exposure,
             });
     });
 });
@@ -184,7 +193,7 @@ describe('CommitmentHealthMetrics - tab switching via click', () => {
         expect((HealthMetricsDrawdownChart as Mock).mock.calls[0][0]).toMatchObject({
                 data: drawdownData,
                 thresholdPercent: baseProps.thresholdPercent,
-                volatilityPercent: baseProps.volatilityPercent,
+                exposure: baseProps.exposure,
             });
     });
 
@@ -201,7 +210,7 @@ describe('CommitmentHealthMetrics - tab switching via click', () => {
 
         expect((HealthMetricsFeeGenerationChart as Mock).mock.calls[0][0]).toMatchObject({
                 data: feeGenerationData,
-                volatilityPercent: baseProps.volatilityPercent,
+                exposure: baseProps.exposure,
             });
     });
 
@@ -216,7 +225,7 @@ describe('CommitmentHealthMetrics - tab switching via click', () => {
         expect(screen.queryByTestId('drawdown-chart')).not.toBeInTheDocument();
         expect(screen.queryByTestId('fee-chart')).not.toBeInTheDocument();
 
-        // Compliance chart only ever takes `data` - no thresholdPercent/volatilityPercent.
+        // Compliance chart only ever takes `data` - no thresholdPercent/exposure.
         expect((HealthMetricsComplianceChart as Mock).mock.calls[0][0]).toEqual({ data: complianceData });
     });
 
@@ -363,16 +372,16 @@ describe('CommitmentHealthMetrics - empty datasets', () => {
 // ---------------------------------------------------------------------------
 
 describe('CommitmentHealthMetrics - optional props', () => {
-    it('renders the drawdown chart without thresholdPercent/volatilityPercent when omitted', async () => {
+    it('renders the drawdown chart without thresholdPercent/exposure when omitted', async () => {
         const user = userEvent.setup();
-        renderComponent({ thresholdPercent: undefined, volatilityPercent: undefined });
+        renderComponent({ thresholdPercent: undefined, exposure: undefined });
 
         await user.click(screen.getByRole('button', { name: TAB_LABELS.drawdown }));
 
         expect((HealthMetricsDrawdownChart as Mock).mock.calls[0][0]).toMatchObject({
                 data: drawdownData,
                 thresholdPercent: undefined,
-                volatilityPercent: undefined,
+                exposure: undefined,
             });
     });
 });

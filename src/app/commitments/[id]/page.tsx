@@ -15,6 +15,7 @@ import CommitmentEarlyExitModal from '@/components/CommitmentEarlyExitModal/Comm
 import CommitmentDisputeModal from '@/components/modals/CommitmentDisputeModal';
 import DisputeStatusTracker, { type DisputeInfo } from '@/components/dispute/DisputeStatusTracker';
 import { openExplorerUrl } from '@/utils/explorerLinks';
+import { computeCommitmentExposure } from '@/utils/exposure';
 import { CommitmentStatusProvider, useCommitmentStatus } from '@/context/CommitmentStatusContext';
 
 // Mock Commitments
@@ -151,6 +152,12 @@ export default function CommitmentDetailPage({
     const earlyExitPenaltyLabel = `${commitment.earlyExitPenaltyPercent ?? 3}%`
     const { canEarlyExit } = commitment
 
+    const exposure = computeCommitmentExposure({
+        valueHistory: MOCK_VALUE_HISTORY_DATA,
+        drawdownHistory: MOCK_DRAWDOWN_DATA,
+        maxLossPercent: commitment.maxLoss,
+    });
+
     const [exportModalOpen, setExportModalOpen] = useState(false);
     const [earlyExitModalOpen, setEarlyExitModalOpen] = useState(false);
     const [disputeModalOpen, setDisputeModalOpen] = useState(false);
@@ -240,8 +247,7 @@ export default function CommitmentDetailPage({
                                     drawdownData={MOCK_DRAWDOWN_DATA}
                                     valueHistoryData={MOCK_VALUE_HISTORY_DATA}
                                     feeGenerationData={MOCK_FEE_GENERATION_DATA}
-                                    thresholdPercent={0.5}
-                                    volatilityPercent={35}
+                                    exposure={exposure}
                                 />
                             </ErrorBoundary>
 
