@@ -5,8 +5,7 @@ import dynamic from "next/dynamic";
 import { apiGet } from '@/lib/apiClient';
 import { CommitmentDetailOverview } from "@/components/CommitmentDetailOverview";
 import { AtRiskCommitments } from "@/components/dashboard/AtRiskCommitments";
-import { OverviewWidgetGrid } from "@/components/dashboard/OverviewWidgetGrid";
-import { useWidgetLayout } from "@/hooks/useWidgetLayout";
+import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { Commitment } from "@/lib/types/domain";
 import OverviewTimeRangeSelector from "@/components/overview/OverviewTimeRangeSelector";
 import { useOverviewTimeRange } from "@/hooks/useOverviewTimeRange";
@@ -100,6 +99,9 @@ export default function CommitmentOverviewPage() {
         </div>
         <div className="w-full">
           <PortfolioAllocationChart commitments={commitments} />
+        </div>
+        <div className="w-full">
+          <RecentActivityFeed commitments={commitments} />
         </div>
         <CommitmentDetailOverview
           commitmentTypeLabel="Safe Commitment"
