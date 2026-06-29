@@ -36,11 +36,12 @@ export default function CommitmentOverviewPage() {
       setLoading(true);
       try {
         const data = await apiGet<{ data: Commitment[] }>('/api/commitments');
-        if (data && Array.isArray(data.data)) {
-          setCommitments(data.data);
-        } else if (Array.isArray(data)) {
-          setCommitments(data);
-        }
+        setCommitments(data.data);
+          if (data && Array.isArray(data.data)) {
+            setCommitments(data.data);
+          } else if (Array.isArray(data)) {
+            setCommitments(data);
+          }
       } catch (err) {
         console.error("Failed to load commitments", err);
       } finally {
@@ -86,7 +87,7 @@ export default function CommitmentOverviewPage() {
   );
 
   return (
-    <main className="min-h-screen w-full bg-[#0a0a0a] px-6 py-10 text-white">
+    <main id="main-content" className="min-h-screen w-full bg-[#0a0a0a] px-6 py-10 text-white">
       <div className="mx-auto w-full max-w-[1200px] flex flex-col gap-6">
         {/* Page header with time-range filter */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
