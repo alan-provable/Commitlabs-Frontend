@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import MyCommitmentCard from './MyCommitmentCard';
 import { Commitment } from '@/types/commitment';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { CompareCommitmentsTray } from './CompareCommitmentsTray';
+import { useGridSelection } from '@/hooks/useGridSelection';
+import { BulkActionBar } from './BulkActionBar';
+import { Check } from 'lucide-react';
 
 interface MyCommitmentsGridProps {
   commitments: Commitment[];
@@ -12,6 +14,8 @@ interface MyCommitmentsGridProps {
   onAttestations?: (id: string) => void;
   onEarlyExit?: (id: string) => void;
   onListForSale?: (id: string) => void;
+  onExportSelected?: (selectedIds: string[]) => void;
+  isExporting?: boolean;
 }
 
 const MyCommitmentsGrid: React.FC<MyCommitmentsGridProps> = ({
@@ -20,73 +24,99 @@ const MyCommitmentsGrid: React.FC<MyCommitmentsGridProps> = ({
   onAttestations,
   onEarlyExit,
   onListForSale,
+  onExportSelected,
+  isExporting = false,
 }) => {
-  const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+  const visibleIds = commitments.map(c => c.id);
+  
+  const {
+    selectedIds,
+    selectedCount,
+    isAllSelected,
+    isIndeterminate,
+    toggleSelection,
+    selectAll,
+    clearSelection,
+  } = useGridSelection({ visibleIds });
 
-  const toggleCompare = (id: string) => {
-    setCompareIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else if (next.size < CompareCommitmentsTray.MAX) {
-        next.add(id);
-      }
-      return next;
-    });
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      clearSelection();
+    } else {
+      selectAll();
+    }
   };
 
-  const selectedCommitments = commitments.filter((c) => compareIds.has(c.id));
+  const handleExportSelected = () => {
+    if (onExportSelected) {
+      onExportSelected(Array.from(selectedIds));
+    }
+  };
 
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        <div className="text-[14px] text-[#94A3B8]">
-          <span className="text-[16px] font-semibold text-white">{commitments.length}</span>{' '}
-          commitments found
+    <div className="flex flex-col gap-4">
+      {/* Header with select all control */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isAllSelected}
+              ref={(input) => {
+                if (input) {
+                  input.indeterminate = isIndeterminate;
+                }
+              }}
+              onChange={handleSelectAll}
+              className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#0FF0FC] focus:ring-2 focus:ring-[#0FF0FC] focus:ring-offset-0 focus:ring-offset-[#0a0a0a]"
+              aria-label={isAllSelected ? 'Deselect all commitments' : 'Select all commitments'}
+            />
+            <span className="text-[14px] text-[#94A3B8]">
+              <span className="text-[16px] font-semibold text-white">{commitments.length}</span>{' '}
+              commitments found
+            </span>
+          </label>
         </div>
-
-        {commitments.length > 0 ? (
-          <div className="grid grid-cols-3 gap-6 max-[1200px]:grid-cols-2 max-[768px]:grid-cols-1">
-            {commitments.map((commitment) => (
-              <div key={commitment.id} className="relative">
-                <MyCommitmentCard
-                  commitment={commitment}
-                  onDetails={onDetails}
-                  onAttestations={onAttestations}
-                  onEarlyExit={onEarlyExit}
-                  onListForSale={onListForSale}
-                />
-                <button
-                  type="button"
-                  onClick={() => toggleCompare(commitment.id)}
-                  aria-pressed={compareIds.has(commitment.id)}
-                  aria-label={`${compareIds.has(commitment.id) ? 'Remove from' : 'Add to'} compare`}
-                  className={`absolute top-3 left-3 rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-1 focus:ring-[#51A2FF] ${
-                    compareIds.has(commitment.id)
-                      ? 'border-[#51A2FF] bg-[#51A2FF]/20 text-[#51A2FF]'
-                      : 'border-[#333] bg-[#1a1a1a] text-[#99a1af] hover:border-[#51A2FF]/50 hover:text-white'
-                  }`}
-                >
-                  {compareIds.has(commitment.id) ? '✓ Comparing' : '+ Compare'}
-                </button>
-              </div>
-            ))}
+        
+        {selectedCount > 0 && (
+          <div className="flex items-center gap-2 text-sm text-[#0FF0FC]">
+            <Check size={16} />
+            <span>{selectedCount} selected</span>
           </div>
-        ) : (
-          <EmptyState
-            title="No commitments found"
-            description="No commitments found matching your filters."
-            cta={{ label: 'Create your first commitment', href: '/create' }}
-          />
         )}
       </div>
+      
+      {commitments.length > 0 ? (
+        <div className="grid grid-cols-3 gap-6 max-[1200px]:grid-cols-2 max-[768px]:grid-cols-1">
+          {commitments.map((commitment) => (
+            <MyCommitmentCard
+              key={commitment.id}
+              commitment={commitment}
+              isSelected={selectedIds.has(commitment.id)}
+              onSelect={() => toggleSelection(commitment.id)}
+              onDetails={onDetails}
+              onAttestations={onAttestations}
+              onEarlyExit={onEarlyExit}
+              onListForSale={onListForSale}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="No commitments found"
+          description="No commitments found matching your filters."
+          cta={{ label: 'Create your first commitment', href: '/create' }}
+        />
+      )}
 
-      <CompareCommitmentsTray
-        selected={selectedCommitments}
-        onRemove={(id) => toggleCompare(id)}
-        onClear={() => setCompareIds(new Set())}
+      {/* Bulk action bar */}
+      <BulkActionBar
+        selectedCount={selectedCount}
+        onClear={clearSelection}
+        onExportSelected={handleExportSelected}
+        isExporting={isExporting}
       />
-    </>
+    </div>
   );
 };
 
