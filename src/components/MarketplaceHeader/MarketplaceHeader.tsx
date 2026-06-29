@@ -12,6 +12,7 @@ import Image from 'next/image'
 import { AlertCircle, ArrowLeft, Loader2, Search } from 'lucide-react'
 import styles from './MarketplaceHeader.module.css';
 import { apiGet, apiFetch } from '@/lib/apiClient';
+import { MarketStatsBanner } from './MarketStatsBanner';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,12 +29,6 @@ export interface CommitmentSearchResult {
   currentValue: string
   createdAt: string
   expiresAt: string
-}
-
-interface MarketplaceStats {
-  activeListings: number
-  averageYield: number
-  medianPrice: number
 }
 
 const SORT_OPTIONS = [
@@ -83,9 +78,7 @@ export function MarketplaceHeader({
   ownerAddress,
   onResultSelect,
 }: MarketplaceHeaderProps) {
-  // ── Stats ──────────────────────────────────────────────────────────────────
-  const [stats, setStats] = useState<MarketplaceStats | null>(null)
-  const [statsError, setStatsError] = useState<string | null>(null)
+  // ── Sort ───────────────────────────────────────────────────────────────────
   const [sortValue, setSortValue] = useState<SortValue>('popular')
 
   // ── Typeahead ──────────────────────────────────────────────────────────────
@@ -100,23 +93,6 @@ export function MarketplaceHeader({
   const inputRef = useRef<HTMLInputElement>(null)
   const uid = useId()
   const listboxId = `${uid}-listbox`
-
-  // ── Fetch stats on mount ───────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false
-    const fetchStats = async () => {
-      try {
-        const data = await apiGet<MarketplaceStats>('/api/marketplace/stats');
-        if (!cancelled) setStats(data);
-      } catch (e) {
-        if (!cancelled) setStatsError((e as Error).message)
-      }
-    }
-    fetchStats()
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   // ── Debounced typeahead search ─────────────────────────────────────────────
   useEffect(() => {
@@ -322,16 +298,7 @@ export function MarketplaceHeader({
           </div>
 
           {/* ── Stats summary ── */}
-          {stats && (
-            <div className={styles.statsSummary} aria-live="polite">
-              <span className={styles.statItem}>Listings: {stats.activeListings}</span>
-              <span className={styles.statItem}>Avg Yield: {stats.averageYield}%</span>
-              <span className={styles.statItem}>Median Price: ${stats.medianPrice}</span>
-            </div>
-          )}
-          {statsError && (
-            <div className={styles.error}>Error: {statsError}</div>
-          )}
+          <MarketStatsBanner />
 
           {/* ── Sort control ── */}
           <div className={styles.sortControl}>
