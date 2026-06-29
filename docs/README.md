@@ -44,6 +44,7 @@ Welcome to the CommitLabs documentation index. This document serves as a single 
 - **[MARKETPLACE_EMPTY_STATES.md](MARKETPLACE_EMPTY_STATES.md)** — UI variations shown when searches or categories yield zero marketplace results.
 - **[RELIST_EDIT_PRICE.md](RELIST_EDIT_PRICE.md)** — Relisting logic and price updates for existing marketplace offerings.
 - **[PURCHASE_SUCCESS.md](PURCHASE_SUCCESS.md)** — UX and flow details showing post-purchase confirmation and routing.
+- **[DETAIL_HEADER_COPY.md](DETAIL_HEADER_COPY.md)** — Commitment detail header copy-id and safe explorer-link actions.
 
 ## 🎨 UI/UX Design & Branding
 - **[design/FigmaDesign.md](design/FigmaDesign.md)** — Figma success state designs and visual directions.
