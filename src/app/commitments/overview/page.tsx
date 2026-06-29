@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { apiGet } from "@/lib/apiClient";
+import dynamic from "next/dynamic";
+import { apiGet } from '@/lib/apiClient';
 import { CommitmentDetailOverview } from "@/components/CommitmentDetailOverview";
 import { AtRiskCommitments } from "@/components/dashboard/AtRiskCommitments";
 import { OverviewWidgetGrid } from "@/components/dashboard/OverviewWidgetGrid";
@@ -9,6 +10,19 @@ import { useWidgetLayout } from "@/hooks/useWidgetLayout";
 import { Commitment } from "@/lib/types/domain";
 import OverviewTimeRangeSelector from "@/components/overview/OverviewTimeRangeSelector";
 import { useOverviewTimeRange } from "@/hooks/useOverviewTimeRange";
+
+const PortfolioAllocationChart = dynamic(
+  () =>
+    import(
+      "@/components/dashboard/PortfolioAllocationChart"
+    ).then((mod) => mod.PortfolioAllocationChartInner),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-[#111] border border-[#222] rounded-xl p-6 h-80 animate-pulse" />
+    ),
+  },
+);
 
 export default function CommitmentOverviewPage() {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
@@ -21,11 +35,11 @@ export default function CommitmentOverviewPage() {
     async function loadCommitments() {
       setLoading(true);
       try {
-        const data = await apiGet<{ data: Commitment[] }>("/api/commitments");
+        const data = await apiGet<{ data: Commitment[] }>('/api/commitments');
         if (data && Array.isArray(data.data)) {
           setCommitments(data.data);
         } else if (Array.isArray(data)) {
-          setCommitments(data as unknown as Commitment[]);
+          setCommitments(data);
         }
       } catch (err) {
         console.error("Failed to load commitments", err);
@@ -83,55 +97,27 @@ export default function CommitmentOverviewPage() {
             aria-label="Filter overview by time range"
           />
         </div>
-
-        {/* Loading skeleton */}
-        {loading && (
-          <div
-            className="animate-pulse h-24 bg-zinc-900 rounded-xl"
-            role="status"
-            aria-label="Loading commitments"
-          />
-        )}
-
-        {/* Empty state per range */}
-        {!loading && filteredCommitments.length === 0 && commitments.length > 0 && (
-          <div
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center"
-            role="status"
-            aria-live="polite"
-            data-testid="overview-empty-range-state"
-          >
-            <p className="text-zinc-400 text-sm">
-              No commitments found for the selected time range. Try a wider range.
-            </p>
-          </div>
-        )}
-
-        {!loading && (
-          <>
-            <div className="w-full">
-              <AtRiskCommitments commitments={filteredCommitments} />
-            </div>
-            <CommitmentDetailOverview
-              commitmentTypeLabel="Safe Commitment"
-              currentValue="52,600"
-              currentValueAsset="XLM"
-              gainLossLabel="+5.20% (+2,600 XLM)"
-              gainLossVariant="positive"
-              initialAmount="50,000"
-              initialAmountAsset="XLM"
-              createdDate="Jan 10, 2026"
-              expiresDate="Feb 9, 2026"
-              daysRemaining={12}
-              durationPercentComplete={87}
-              complianceScore={95}
-              complianceScoreLabel="Excellent compliance with commitment rules"
-              maxLossThreshold="2%"
-              currentDrawdown="0.8%"
-              feesGenerated="$126"
-            />
-          </>
-        )}
+        <div className="w-full">
+          <PortfolioAllocationChart commitments={commitments} />
+        </div>
+        <CommitmentDetailOverview
+          commitmentTypeLabel="Safe Commitment"
+          currentValue="52,600"
+          currentValueAsset="XLM"
+          gainLossLabel="+5.20% (+2,600 XLM)"
+          gainLossVariant="positive"
+          initialAmount="50,000"
+          initialAmountAsset="XLM"
+          createdDate="Jan 10, 2026"
+          expiresDate="Feb 9, 2026"
+          daysRemaining={12}
+          durationPercentComplete={87}
+          complianceScore={95}
+          complianceScoreLabel="Excellent compliance with commitment rules"
+          maxLossThreshold="2%"
+          currentDrawdown="0.8%"
+          feesGenerated="$126"
+        />
       </div>
     </main>
   );
