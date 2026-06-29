@@ -6,6 +6,7 @@ import {
   type ExposureLevel,
 } from '@/utils/exposure'
 import styles from './VolatilityExposureMeter.module.css'
+import { useReducedMotion } from '@/lib/a11y/useReducedMotion'
 
 export interface VolatilityExposureMeterProps {
   /** Current exposure as a percentage (0–100). Clamped when rendering. */
@@ -30,15 +31,9 @@ export default function VolatilityExposureMeter({
   zoneThresholds = EXPOSURE_ZONE_THRESHOLDS,
 }: VolatilityExposureMeterProps) {
   const percent = clamp(valuePercent)
-  const level: ExposureLevel | 'unknown' = insufficientData
-    ? 'unknown'
-    : getExposureLevel(percent, zoneThresholds)
-  const ariaLabel = insufficientData
-    ? 'Volatility exposure: insufficient data.'
-    : `Volatility exposure: ${percent}%, ${level} range.`
-  const valueText = insufficientData
-    ? 'Insufficient data'
-    : `${percent} percent, ${level}`
+  const level = exposureLevel(percent)
+  const ariaLabel = `Volatility exposure: ${percent}%, ${level} range.`
+  const reducedMotion = useReducedMotion()
 
   return (
     <section
