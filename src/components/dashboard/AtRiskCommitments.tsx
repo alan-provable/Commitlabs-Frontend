@@ -21,19 +21,11 @@ export const DEFAULT_AT_RISK_THRESHOLDS: AtRiskThresholds = {
 
 interface AtRiskCommitmentsProps {
   commitments?: Commitment[];
-  thresholds?: Partial<AtRiskThresholds>;
-  onThresholdsChange?: (thresholds: AtRiskThresholds) => void;
+  /** Optional label describing the active time range, e.g. "30 D" or "All". */
+  rangeLabel?: string;
 }
 
-function validateThreshold(value: number, min: number, max: number): boolean {
-  return Number.isFinite(value) && value >= min && value <= max;
-}
-
-export function AtRiskCommitments({
-  commitments = [],
-  thresholds: thresholdsProp,
-  onThresholdsChange,
-}: AtRiskCommitmentsProps) {
+export function AtRiskCommitments({ commitments = [], rangeLabel }: AtRiskCommitmentsProps) {
   const [atRisk, setAtRisk] = useState<AtRiskCommitment[]>([]);
   const [loading, setLoading] = useState(true);
   const [thresholds, setThresholds] = useState<AtRiskThresholds>({
@@ -100,6 +92,24 @@ export function AtRiskCommitments({
 
   if (loading) {
     return <div className="animate-pulse h-24 bg-zinc-900 rounded-xl" />;
+  }
+
+  if (atRisk.length === 0) {
+    return (
+      <div
+        className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center"
+        role="status"
+        aria-live="polite"
+        data-testid="at-risk-empty-state"
+      >
+        <h3 className="text-lg font-medium text-white mb-2">All Commitments Healthy</h3>
+        <p className="text-zinc-400 text-sm">
+          {rangeLabel && rangeLabel !== "All"
+            ? `No commitments need attention in the last ${rangeLabel}.`
+            : "No commitments currently need your attention."}
+        </p>
+      </div>
+    );
   }
 
   return (
