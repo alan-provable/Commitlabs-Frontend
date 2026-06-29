@@ -1,6 +1,8 @@
 import React from "react";
 import { Commitment } from "@/types/commitment";
+import { MaturityCountdown } from './MaturityCountdown';
 import type { MarketplaceListing } from "@/types/marketplace";
+import RelistPriceEditor from './marketplace/RelistPriceEditor';
 import Link from "next/link";
 import {
   SafeIcon,
@@ -20,6 +22,7 @@ interface MyCommitmentCardProps {
   onAttestations?: (id: string) => void;
   onEarlyExit?: (id: string) => void;
   onListForSale?: (id: string) => void;
+  onListingPriceUpdated?: (id: string, newPrice: string) => void;
 }
 
 const MyCommitmentCard: React.FC<MyCommitmentCardProps> = ({
@@ -30,6 +33,7 @@ const MyCommitmentCard: React.FC<MyCommitmentCardProps> = ({
   onAttestations,
   onEarlyExit,
   onListForSale,
+  onListingPriceUpdated,
 }) => {
   const {
     id,
@@ -40,7 +44,6 @@ const MyCommitmentCard: React.FC<MyCommitmentCardProps> = ({
     currentValue,
     changePercent,
     durationProgress,
-    daysRemaining,
     complianceScore,
     maxLoss,
     currentDrawdown,
@@ -154,7 +157,7 @@ const MyCommitmentCard: React.FC<MyCommitmentCardProps> = ({
               Duration Progress
             </span>
             <span className="text-white font-medium font-roboto">
-              {daysRemaining} days left
+              <MaturityCountdown maturityTimestamp={new Date(expiryDate).getTime()} />
             </span>
           </div>
           <div className="h-[6px] rounded-full bg-white/10 overflow-hidden">
@@ -288,8 +291,4 @@ const MyCommitmentCard: React.FC<MyCommitmentCardProps> = ({
   );
 };
 
-// Memoized so that filtering/sorting a large list only re-renders cards whose
-// props actually changed. `commitment` keeps a stable reference across filter/
-// sort operations, and the callbacks are stabilized with useCallback by the
-// parent, so React.memo's shallow prop comparison skips unchanged cards.
 export default React.memo(MyCommitmentCard);
