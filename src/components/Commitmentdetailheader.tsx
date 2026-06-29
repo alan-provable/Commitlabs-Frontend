@@ -9,8 +9,7 @@ interface CommitmentDetailHeaderProps {
     statusLabel: string;
     statusVariant: 'active' | 'settled' | 'violated' | 'early_exit' | string;
     onBack: () => void;
-    onShare: () => void;
-    explorerNetwork?: ExplorerNetwork;
+    onShare: () => void | Promise<unknown>;
 }
 
 type CopyStatus = 'idle' | 'copied' | 'unavailable';
@@ -175,7 +174,7 @@ export default function CommitmentDetailHeader({
                 {/* Right Section: Share Button */}
                 <button
                     onClick={onShare}
-                    className="group flex items-center gap-2 px-4 py-2.5 bg-[#0a0a0a] border border-[#222] rounded-full text-[#f5f5f7] text-sm font-medium hover:border-[#0ff0fc]/40 hover:bg-[#0ff0fc]/5 hover:shadow-[0_0_20px_rgba(15,240,252,0.15)] hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:border-[#0ff0fc]/60 focus:shadow-[0_0_24px_rgba(15,240,252,0.25)] w-full sm:w-auto justify-center sm:justify-start"
+                    className="group flex items-center gap-2 px-4 py-2.5 bg-[#0a0a0a] border border-[#222] rounded-full text-[#f5f5f7] text-sm font-medium hover:border-[#0ff0fc]/40 hover:bg-[#0ff0fc]/5 hover:shadow-[0_0_20px_rgba(15,240,252,0.15)] hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:border-[#0ff0fc]/60 focus:shadow-[0_0_24px_rgba(15,240,252,0.25)] focus-visible:ring-2 focus-visible:ring-[#0ff0fc] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] w-full sm:w-auto justify-center sm:justify-start"
                     aria-label="Share commitment"
                 >
                     <Share2 className="w-4 h-4 group-hover:rotate-6 transition-transform" />
