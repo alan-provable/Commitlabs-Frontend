@@ -270,7 +270,7 @@ export default function CreateCommitment() {
             onSelectType={handleSelectType}
             onNext={handleNextStep}
             onBack={handleBack}
-            initialFocusField={initialFocusField || undefined}
+            {...(initialFocusField ? { initialFocusField } : {})}
           />
         )}
 
@@ -294,7 +294,7 @@ export default function CreateCommitment() {
             onNext={handleNextStep}
             amountError={amountError}
             maxLossWarning={maxLossWarning}
-            initialFocusField={initialFocusField || undefined}
+            {...(initialFocusField ? { initialFocusField } : {})}
           />
         )}
 
@@ -311,12 +311,12 @@ export default function CreateCommitment() {
             <CommitmentCreatedModal
               isOpen={showSuccessModal}
               commitmentId={commitmentId}
-              callerAddress={callerAddress}
+              {...(callerAddress ? { callerAddress } : {})}
               onViewCommitment={handleViewCommitment}
               onCreateAnother={handleCreateAnother}
               onClose={handleCloseModal}
               onFundLater={handleFundLater}
-              onViewOnExplorer={commitmentExplorerUrl ? handleViewOnExplorer : undefined}
+              {...(commitmentExplorerUrl ? { onViewOnExplorer: handleViewOnExplorer } : {})}
             />
           </>
         )}

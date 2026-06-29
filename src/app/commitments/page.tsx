@@ -228,7 +228,6 @@ export default function MyCommitments() {
   }, [])
 
   const openListForSaleModal = useCallback((id: string) => {
-    setSuccessMessage(null)
     setListingCommitmentId(id)
   }, [])
 
@@ -240,12 +239,12 @@ export default function MyCommitments() {
     if (!listingCommitmentId) return
     const committed = commitmentsList.find((c) => c.id === listingCommitmentId)
     if (!committed) return
-    setSuccessMessage(
-      listingId
+    toast.success({
+      title: listingId
         ? `${committed.id} is now listed on the marketplace as ${listingId}. Buyers will see it in the listings grid.`
         : `${committed.id} is now listed on the marketplace. Buyers will see it in the listings grid.`
-    )
-  }, [commitmentsList, listingCommitmentId])
+    })
+  }, [commitmentsList, listingCommitmentId, toast])
 
   // Stable callbacks so the memoized MyCommitmentCard only re-renders when its
   // own commitment changes, not on every filter/sort that re-runs this page.
