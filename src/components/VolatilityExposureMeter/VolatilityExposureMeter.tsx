@@ -1,13 +1,22 @@
 'use client'
 
+import {
+  EXPOSURE_ZONE_THRESHOLDS,
+  getExposureLevel,
+  type ExposureLevel,
+} from '@/utils/exposure'
 import styles from './VolatilityExposureMeter.module.css'
 import { useReducedMotion } from '@/lib/a11y/useReducedMotion'
 
 export interface VolatilityExposureMeterProps {
   /** Current exposure as a percentage (0–100). Clamped when rendering. */
-  valuePercent: number
+  valuePercent?: number
+  /** When true, shows an explicit insufficient-data state instead of a numeric reading. */
+  insufficientData?: boolean
   /** Optional short description of what the exposure means. */
   description?: string
+  /** Zone boundaries used for level labels and accessible annotations. */
+  zoneThresholds?: typeof EXPOSURE_ZONE_THRESHOLDS
 }
 
 function clamp(value: number): number {
@@ -15,15 +24,11 @@ function clamp(value: number): number {
   return Math.max(0, Math.min(100, value))
 }
 
-function exposureLevel(percent: number): 'low' | 'medium' | 'high' {
-  if (percent <= 33) return 'low'
-  if (percent <= 66) return 'medium'
-  return 'high'
-}
-
 export default function VolatilityExposureMeter({
-  valuePercent,
+  valuePercent = 0,
+  insufficientData = false,
   description,
+  zoneThresholds = EXPOSURE_ZONE_THRESHOLDS,
 }: VolatilityExposureMeterProps) {
   const percent = clamp(valuePercent)
   const level = exposureLevel(percent)
@@ -34,34 +39,36 @@ export default function VolatilityExposureMeter({
     <section
       className={styles.container}
       aria-labelledby="volatility-exposure-title"
-      aria-describedby={description ? 'volatility-exposure-desc' : undefined}
+      aria-describedby={
+        description || insufficientData ? 'volatility-exposure-desc' : undefined
+      }
     >
       <div className={styles.header}>
         <h2 id="volatility-exposure-title" className={styles.title}>
           Volatility Exposure
         </h2>
-        <span className={styles.percentLabel}>{Math.round(percent)}%</span>
+        <span className={styles.percentLabel}>
+          {insufficientData ? '—' : `${Math.round(percent)}%`}
+        </span>
       </div>
 
       <div
         className={styles.barTrack}
         role="meter"
-        aria-valuenow={percent}
+        aria-valuenow={insufficientData ? undefined : percent}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={ariaLabel}
-        aria-valuetext={`${percent} percent, ${level}`}
+        aria-valuetext={valueText}
       >
-        <div
-          className={styles.barMask}
-          style={{
-            width: `${percent}%`,
-            // Honor the motion policy: live updates still apply, just without animation.
-            transition: reducedMotion ? 'none' : undefined,
-          }}
-        >
-             <div className={styles.barGradient} />
-        </div>
+        {!insufficientData && (
+          <div
+            className={styles.barMask}
+            style={{ width: `${percent}%` }}
+          >
+            <div className={styles.barGradient} />
+          </div>
+        )}
       </div>
 
       <div className={styles.labelsRow}>
@@ -70,7 +77,13 @@ export default function VolatilityExposureMeter({
         <span>High</span>
       </div>
 
-      {description && (
+      {insufficientData && (
+        <p id="volatility-exposure-desc" className={styles.description}>
+          Insufficient data — not enough value history or drawdown metrics to compute exposure.
+        </p>
+      )}
+
+      {!insufficientData && description && (
         <p id="volatility-exposure-desc" className={styles.description}>
           {description}
         </p>
