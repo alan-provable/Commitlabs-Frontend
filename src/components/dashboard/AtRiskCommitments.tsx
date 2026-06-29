@@ -6,9 +6,11 @@ import { ProtocolConstants, fetchProtocolConstants } from '@/utils/protocol';
 
 interface AtRiskCommitmentsProps {
   commitments?: Commitment[];
+  /** Optional label describing the active time range, e.g. "30 D" or "All". */
+  rangeLabel?: string;
 }
 
-export function AtRiskCommitments({ commitments = [] }: AtRiskCommitmentsProps) {
+export function AtRiskCommitments({ commitments = [], rangeLabel }: AtRiskCommitmentsProps) {
   const [atRisk, setAtRisk] = useState<AtRiskCommitment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,10 +35,17 @@ export function AtRiskCommitments({ commitments = [] }: AtRiskCommitmentsProps) 
 
   if (atRisk.length === 0) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center">
+      <div
+        className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-center"
+        role="status"
+        aria-live="polite"
+        data-testid="at-risk-empty-state"
+      >
         <h3 className="text-lg font-medium text-white mb-2">All Commitments Healthy</h3>
         <p className="text-zinc-400 text-sm">
-          No commitments currently need your attention.
+          {rangeLabel && rangeLabel !== "All"
+            ? `No commitments need attention in the last ${rangeLabel}.`
+            : "No commitments currently need your attention."}
         </p>
       </div>
     );
