@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
-import SavedSearches from "./SavedSearches";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type CommitmentType = "balanced" | "aggressive" | "conservative";
 
@@ -27,15 +27,17 @@ interface MarketplaceFiltersProps {
   onClose?: () => void;
 }
 
+const DEFAULTS: Filters = {
+  sortBy: "price",
+  commitmentType: ["balanced"],
+  priceRange: [0, 1000000],
+  durationRange: [0, 90],
+  minCompliance: 0,
+  maxLoss: 100,
+};
+
 const MarketplaceFilters = ({
-  filters = {
-    sortBy: "price",
-    commitmentType: ["balanced"],
-    priceRange: [0, 1000000],
-    durationRange: [0, 90],
-    minCompliance: 0,
-    maxLoss: 100,
-  },
+  filters = DEFAULTS,
   onFilterChange,
 }: MarketplaceFiltersProps) => {
   const [localFilters, setLocalFilters] = useState<Filters>(filters);
@@ -50,27 +52,62 @@ const MarketplaceFilters = ({
 
   const [sidebarSearch, setSidebarSearch] = useState("");
 
+  // Separate debounced state for continuous (range/text) inputs only.
+  // Discrete toggles (commitmentType, sortBy) bypass debounce for instant feedback.
+  const [continuousFilters, setContinuousFilters] = useState<
+    Pick<Filters, "priceRange" | "durationRange" | "minCompliance" | "maxLoss">
+  >({
+    priceRange: filters.priceRange,
+    durationRange: filters.durationRange,
+    minCompliance: filters.minCompliance,
+    maxLoss: filters.maxLoss,
+  });
+
+  const debouncedContinuous = useDebounce(continuousFilters, 300);
+
+  // Track whether this is the initial mount to avoid double-firing on load.
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    const merged: Filters = { ...localFilters, ...debouncedContinuous };
+    onFilterChange?.(merged);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedContinuous]);
+
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const handleFilterUpdate = <K extends keyof Filters>(key: K, value: Filters[K]) => {
+  /** For discrete controls (toggles, sort): apply immediately. */
+  const handleDiscreteUpdate = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     const updated = { ...localFilters, [key]: value };
     setLocalFilters(updated);
     onFilterChange?.(updated);
   };
 
+  /** For continuous controls (range sliders): debounce the propagation. */
+  const handleContinuousUpdate = <K extends keyof typeof continuousFilters>(
+    key: K,
+    value: (typeof continuousFilters)[K],
+  ) => {
+    setLocalFilters((prev) => ({ ...prev, [key]: value }));
+    setContinuousFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   const handleReset = () => {
-    const defaults: Filters = {
-      sortBy: "price",
-      commitmentType: ["balanced"],
-      priceRange: [0, 1000000],
-      durationRange: [0, 90],
-      minCompliance: 0,
-      maxLoss: 100,
-    };
-    setLocalFilters(defaults);
-    onFilterChange?.(defaults);
+    setLocalFilters(DEFAULTS);
+    setContinuousFilters({
+      priceRange: DEFAULTS.priceRange,
+      durationRange: DEFAULTS.durationRange,
+      minCompliance: DEFAULTS.minCompliance,
+      maxLoss: DEFAULTS.maxLoss,
+    });
+    // Cancel any pending debounced apply by immediately notifying with defaults.
+    onFilterChange?.(DEFAULTS);
   };
 
   const formatCurrency = (value: number) => {
@@ -135,7 +172,7 @@ const MarketplaceFilters = ({
         </div>
       </div>
 
-      {/* Commitment Type */}
+      {/* Commitment Type - discrete toggle, immediate */}
       <div className="mb-4 border-b border-white/5 pb-3">
         {renderSectionToggle("type", "Commitment Type", "marketplace-filter-type")}
         {expandedSections.type && (
@@ -154,7 +191,7 @@ const MarketplaceFilters = ({
                     const next = isActive
                       ? current.filter((t) => t !== type)
                       : [...current, type];
-                    handleFilterUpdate("commitmentType", next);
+                    handleDiscreteUpdate("commitmentType", next);
                   }}
                   aria-pressed={isActive}
                 >
@@ -185,13 +222,12 @@ const MarketplaceFilters = ({
         )}
       </div>
 
-      {/* Price Range */}
+      {/* Price Range - continuous, debounced */}
       <div className="mb-4 border-b border-white/5 pb-3">
         {renderSectionToggle("price", "Price Range", "marketplace-filter-price")}
         {expandedSections.price && (
           <div id="marketplace-filter-price" className="mt-3">
             <div className="relative h-1.5 bg-white/10 rounded-full">
-              {/* Active range */}
               <div
                 className="absolute h-1.5 bg-[#4A6B8A] rounded-full"
                 style={{
@@ -199,7 +235,6 @@ const MarketplaceFilters = ({
                   width: `${(localFilters.priceRange[1] / 1000000) * 100}%`,
                 }}
               />
-              {/* Draggable handle */}
               <input
                 aria-label="Maximum price"
                 type="range"
@@ -208,7 +243,7 @@ const MarketplaceFilters = ({
                 step="10000"
                 value={localFilters.priceRange[1]}
                 onChange={(e) =>
-                  handleFilterUpdate("priceRange", [0, Number(e.target.value)])
+                  handleContinuousUpdate("priceRange", [0, Number(e.target.value)])
                 }
                 className="focus-ring absolute w-full top-[-6px] h-6 appearance-none bg-transparent pointer-events-auto cursor-pointer rounded-md"
               />
@@ -221,7 +256,7 @@ const MarketplaceFilters = ({
         )}
       </div>
 
-      {/* Duration */}
+      {/* Duration - continuous, debounced */}
       <div className="mb-4 border-b border-white/5 pb-3">
         {renderSectionToggle(
           "duration",
@@ -246,7 +281,7 @@ const MarketplaceFilters = ({
                 step="1"
                 value={localFilters.durationRange[1]}
                 onChange={(e) =>
-                  handleFilterUpdate("durationRange", [0, Number(e.target.value)])
+                  handleContinuousUpdate("durationRange", [0, Number(e.target.value)])
                 }
                 className="focus-ring absolute w-full top-[-6px] h-6 appearance-none bg-transparent pointer-events-auto cursor-pointer rounded-md"
               />
@@ -259,7 +294,7 @@ const MarketplaceFilters = ({
         )}
       </div>
 
-      {/* Compliance */}
+      {/* Compliance - continuous, debounced */}
       <div className="mb-4 border-b border-white/5 pb-3">
         {renderSectionToggle(
           "compliance",
@@ -276,7 +311,7 @@ const MarketplaceFilters = ({
                 min="0"
                 max="100"
                 value={localFilters.minCompliance}
-                onChange={(e) => handleFilterUpdate("minCompliance", Number(e.target.value))}
+                onChange={(e) => handleContinuousUpdate("minCompliance", Number(e.target.value))}
                 className="focus-ring absolute w-full top-[-6px] h-6 appearance-none bg-transparent pointer-events-auto cursor-pointer rounded-md"
               />
             </div>
@@ -288,7 +323,7 @@ const MarketplaceFilters = ({
         )}
       </div>
 
-      {/* Max Loss */}
+      {/* Max Loss - continuous, debounced */}
       <div className="mb-4 border-b border-white/5 pb-3">
         {renderSectionToggle(
           "loss",
@@ -305,7 +340,7 @@ const MarketplaceFilters = ({
                 min="0"
                 max="100"
                 value={localFilters.maxLoss}
-                onChange={(e) => handleFilterUpdate("maxLoss", Number(e.target.value))}
+                onChange={(e) => handleContinuousUpdate("maxLoss", Number(e.target.value))}
                 className="focus-ring absolute w-full top-[-6px] h-6 appearance-none bg-transparent pointer-events-auto cursor-pointer rounded-md"
               />
             </div>
