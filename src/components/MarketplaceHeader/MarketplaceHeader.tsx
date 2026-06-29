@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, {
   useCallback,
@@ -67,7 +67,7 @@ export interface MarketplaceHeaderProps {
   onResultSelect?: (item: CommitmentSearchResult) => void
 }
 
-const DEFAULT_PLACEHOLDER = 'Search commitments…'
+const DEFAULT_PLACEHOLDER = 'Search commitmentsâ€¦'
 
 // ---------------------------------------------------------------------------
 // Component
@@ -80,15 +80,13 @@ export function MarketplaceHeader({
   backHref = '/',
   createHref = '/create',
   searchQuery: controlledQuery,
-  ownerAddress,
-  onResultSelect,
 }: MarketplaceHeaderProps) {
-  // ── Stats ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [stats, setStats] = useState<MarketplaceStats | null>(null)
   const [statsError, setStatsError] = useState<string | null>(null)
   const [sortValue, setSortValue] = useState<SortValue>('popular')
 
-  // ── Typeahead ──────────────────────────────────────────────────────────────
+  // â”€â”€ Typeahead â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [query, setQuery] = useState(controlledQuery ?? '')
   const [results, setResults] = useState<CommitmentSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -101,7 +99,7 @@ export function MarketplaceHeader({
   const uid = useId()
   const listboxId = `${uid}-listbox`
 
-  // ── Fetch stats on mount ───────────────────────────────────────────────────
+  // â”€â”€ Fetch stats on mount â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     let cancelled = false
     const fetchStats = async () => {
@@ -118,7 +116,7 @@ export function MarketplaceHeader({
     }
   }, [])
 
-  // ── Debounced typeahead search ─────────────────────────────────────────────
+  // â”€â”€ Debounced typeahead search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     const trimmed = query.trim()
 
@@ -166,7 +164,7 @@ export function MarketplaceHeader({
     return () => clearTimeout(timerId)
   }, [query, searchDebounceMs, ownerAddress, onSearchChange])
 
-  // ── Keyboard navigation ────────────────────────────────────────────────────
+  // â”€â”€ Keyboard navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleSelect = useCallback(
     (item: CommitmentSearchResult) => {
       setQuery(item.asset)
@@ -218,7 +216,7 @@ export function MarketplaceHeader({
   const activeDescendant =
     activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <header className={styles.root} role="banner">
       <div className={styles.inner}>
@@ -239,7 +237,7 @@ export function MarketplaceHeader({
 
         {/* Right: controls */}
         <div className={styles.controlsBlock}>
-          {/* ── Typeahead combobox ── */}
+          {/* â”€â”€ Typeahead combobox â”€â”€ */}
           <div className={styles.searchWrap}>
             <label htmlFor="marketplace-search" className={styles.srOnly}>
               Search commitments
@@ -276,7 +274,7 @@ export function MarketplaceHeader({
               </span>
             )}
 
-            {/* Results listbox – always rendered so aria-controls is valid */}
+            {/* Results listbox â€“ always rendered so aria-controls is valid */}
             <ul
               id={listboxId}
               role="listbox"
@@ -305,7 +303,7 @@ export function MarketplaceHeader({
                   >
                     <span className={styles.dropdownItemAsset}>{item.asset}</span>
                     <span className={styles.dropdownItemMeta}>
-                      {item.riskType} · {item.amount}
+                      {item.riskType} Â· {item.amount}
                     </span>
                   </li>
                 ))
@@ -321,7 +319,7 @@ export function MarketplaceHeader({
             )}
           </div>
 
-          {/* ── Stats summary ── */}
+          {/* â”€â”€ Stats summary â”€â”€ */}
           {stats && (
             <div className={styles.statsSummary} aria-live="polite">
               <span className={styles.statItem}>Listings: {stats.activeListings}</span>
@@ -333,7 +331,7 @@ export function MarketplaceHeader({
             <div className={styles.error}>Error: {statsError}</div>
           )}
 
-          {/* ── Sort control ── */}
+          {/* â”€â”€ Sort control â”€â”€ */}
           <div className={styles.sortControl}>
             <label htmlFor="marketplace-sort" className={styles.srOnly}>
               Sort marketplace
@@ -353,7 +351,7 @@ export function MarketplaceHeader({
             </select>
           </div>
 
-          {/* ── Create button ── */}
+          {/* â”€â”€ Create button â”€â”€ */}
           <Link
             href={createHref}
             className={styles.createButton}
