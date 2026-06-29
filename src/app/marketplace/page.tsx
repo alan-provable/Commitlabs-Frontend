@@ -469,38 +469,37 @@ export default function Marketplace() {
                 cardCount={9}
               />
             ) : (
-              <>
-                <RecentlyViewedRail
-                  recentIds={recentIds}
-                  listings={mockListings}
-                  onClear={clearRecentListings}
-                  onViewListing={addView}
-                />
-                <MarketplaceResultsLayout
-                  totalCount={filteredListings.length}
-                  viewMode={viewMode}
-                  onViewModeChange={setViewMode}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                >
-                  {viewMode === 'grid' ? (
-                    <ErrorBoundary>
-                      <MarketplaceGrid
-                        items={pagedListings}
-                        isComparePinned={isPinned}
-                        isCompareFull={isCompareFull}
-                        onCompareToggle={(listing: MarketplaceCardProps) => toggleListing(listing)}
-                        onView={addView}
-                      />
-                    </ErrorBoundary>
-                  ) : (
-                    <ErrorBoundary>
-                      <MarketplaceListView items={pagedListings} />
-                    </ErrorBoundary>
-                  )}
-                </MarketplaceResultsLayout>
-              </>
+              <MarketplaceResultsLayout
+                totalCount={filteredListings.length}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                // pagination UI is now handled by infinite scroll in MarketplaceGrid
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              >
+                {viewMode === 'grid' ? (
+                  <ErrorBoundary>
+                    <MarketplaceGrid
+                      queryParams={{
+                        sortBy: filters.sortBy,
+                        type: filters.commitmentType.join(','),
+                        minAmount: filters.priceRange[0],
+                        maxAmount: filters.priceRange[1],
+                        minCompliance: filters.minCompliance,
+                        maxLoss: filters.maxLoss,
+                      }}
+                      isComparePinned={isPinned}
+                      isCompareFull={isCompareFull}
+                      onCompareToggle={(listing: MarketplaceCardProps) => toggleListing(listing)}
+                    />
+                  </ErrorBoundary>
+                ) : (
+                  <ErrorBoundary>
+                    <MarketplaceListView items={pagedListings} />
+                  </ErrorBoundary>
+                )}
+              </MarketplaceResultsLayout>
             )}
           </div>
         </div>
