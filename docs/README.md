@@ -32,6 +32,7 @@ Welcome to the CommitLabs documentation index. This document serves as a single 
 - **[CREATE_THEN_FUND.md](CREATE_THEN_FUND.md)** — Multi-step sequence of creating a commitment on-chain followed by depositing assets.
 - **[CREATE_WIZARD_TOUR.md](CREATE_WIZARD_TOUR.md)** — Interactive onboarding wizard guide for new users.
 - **[EARLY_EXIT_TIMING.md](EARLY_EXIT_TIMING.md)** — Timing restrictions, cooldowns, and penalty formulas for exiting a commitment early.
+- **[GRACE_COUNTDOWN.md](GRACE_COUNTDOWN.md)** — Early-exit grace-period countdown banner behavior, protocol constant, accessibility notes, and tests.
 - **[NOTIFICATION_TEST_SEND.md](NOTIFICATION_TEST_SEND.md)** — Testing notification alerts and event trigger flows.
 - **[SETTINGS_UNSAVED_GUARD.md](SETTINGS_UNSAVED_GUARD.md)** — Navigation blocks and prompt dialogs for unsaved settings forms.
 - **[ROUTE_AUTH_GUARD.md](ROUTE_AUTH_GUARD.md)** — Client-side route protection and redirection for unauthenticated/disconnected wallets.
