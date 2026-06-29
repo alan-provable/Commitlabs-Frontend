@@ -15,8 +15,11 @@ export interface VolatilityExposureMeterProps {
   insufficientData?: boolean
   /** Optional short description of what the exposure means. */
   description?: string
-  /** Zone boundaries used for level labels and accessible annotations. */
-  zoneThresholds?: typeof EXPOSURE_ZONE_THRESHOLDS
+  /**
+   * Historical exposure values (0–100 each) shown as a mini sparkline trend.
+   * Should be ordered oldest → newest; at least 2 values required to render.
+   */
+  historyData?: number[]
 }
 
 function clamp(value: number): number {
@@ -24,16 +27,62 @@ function clamp(value: number): number {
   return Math.max(0, Math.min(100, value))
 }
 
+function exposureLevel(percent: number): 'low' | 'medium' | 'high' {
+  if (percent <= 33) return 'low'
+  if (percent <= 66) return 'medium'
+  return 'high'
+}
+
+interface SparklineProps {
+  data: number[]
+}
+
+function TrendSparkline({ data }: SparklineProps) {
+  const W = 80
+  const H = 24
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+  const pts = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * W
+      const y = H - ((v - min) / range) * H
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(' ')
+  const trend = data[data.length - 1] >= data[0]
+  const stroke = trend ? '#ef4444' : '#22c55e' // higher volatility = red; lower = green
+  return (
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      aria-hidden="true"
+      style={{ overflow: 'visible' }}
+    >
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export default function VolatilityExposureMeter({
   valuePercent = 0,
   insufficientData = false,
   description,
-  zoneThresholds = EXPOSURE_ZONE_THRESHOLDS,
+  historyData,
 }: VolatilityExposureMeterProps) {
   const percent = clamp(valuePercent)
   const level = exposureLevel(percent)
   const ariaLabel = `Volatility exposure: ${percent}%, ${level} range.`
   const reducedMotion = useReducedMotion()
+  const hasHistory = historyData && historyData.length >= 2
 
   return (
     <section
@@ -47,9 +96,12 @@ export default function VolatilityExposureMeter({
         <h2 id="volatility-exposure-title" className={styles.title}>
           Volatility Exposure
         </h2>
-        <span className={styles.percentLabel}>
-          {insufficientData ? '—' : `${Math.round(percent)}%`}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {hasHistory && !reducedMotion && (
+            <TrendSparkline data={historyData!} />
+          )}
+          <span className={styles.percentLabel}>{Math.round(percent)}%</span>
+        </div>
       </div>
 
       <div
@@ -61,14 +113,15 @@ export default function VolatilityExposureMeter({
         aria-label={ariaLabel}
         aria-valuetext={valueText}
       >
-        {!insufficientData && (
-          <div
-            className={styles.barMask}
-            style={{ width: `${percent}%` }}
-          >
-            <div className={styles.barGradient} />
-          </div>
-        )}
+        <div
+          className={styles.barMask}
+          style={{
+            width: `${percent}%`,
+            transition: reducedMotion ? 'none' : undefined,
+          }}
+        >
+          <div className={styles.barGradient} />
+        </div>
       </div>
 
       <div className={styles.labelsRow}>
