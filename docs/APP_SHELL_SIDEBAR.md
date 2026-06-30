@@ -16,6 +16,7 @@ The App Shell Sidebar provides a persistent, collapsible navigation interface fo
 - **Responsive Design**: Automatically converts to a mobile drawer on smaller screens
 - **Focus Trap**: Mobile drawer implements proper focus trapping for accessibility
 - **Smooth Animations**: Powered by Framer Motion for fluid transitions
+- **Nested Breadcrumbs**: `AppShellLayout` renders route-aware breadcrumbs for nested routes such as commitment detail pages
 
 ### Navigation Items
 
@@ -34,6 +35,7 @@ The sidebar includes the following navigation links:
 ```
 src/components/shell/
 ├── AppSidebar.tsx          # Main sidebar component
+├── AppBreadcrumbs.tsx      # Nested route breadcrumb trail
 ├── AppShellLayout.tsx      # Layout wrapper component
 ├── AppSidebar.test.tsx     # Test suite
 └── index.ts                # Barrel exports
@@ -70,8 +72,11 @@ interface AppSidebarProps {
 ```typescript
 interface AppShellLayoutProps {
   children: React.ReactNode  // Page content to render
+  breadcrumbLabels?: Record<string, string>  // Optional labels for dynamic route segments
 }
 ```
+
+See [App Shell Breadcrumbs](./BREADCRUMBS.md) for the breadcrumb API, route behavior, and accessibility notes.
 
 ## Usage Examples
 

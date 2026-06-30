@@ -2,12 +2,17 @@
 
 import React from 'react'
 import { AppSidebar } from './AppSidebar'
+import { AppBreadcrumbs } from './AppBreadcrumbs'
 
 export interface AppShellLayoutProps {
   children: React.ReactNode
+  breadcrumbLabels?: Record<string, string>
 }
 
-export const AppShellLayout: React.FC<AppShellLayoutProps> = ({ children }) => {
+export const AppShellLayout: React.FC<AppShellLayoutProps> = ({
+  children,
+  breadcrumbLabels,
+}) => {
   const handleSkipToMain = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const mainContent = document.getElementById('main-content')
 
@@ -31,6 +36,7 @@ export const AppShellLayout: React.FC<AppShellLayoutProps> = ({ children }) => {
         tabIndex={-1}
         className="flex-1 md:ml-[240px] transition-[margin] duration-300 focus:outline-none"
       >
+        <AppBreadcrumbs labelsBySegment={breadcrumbLabels} />
         {children}
       </main>
     </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { AppShellLayout } from '@/components/shell/AppShellLayout'
 
 type Props = { params: { id: string } }
 
@@ -30,8 +31,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function CommitmentDetailLayout({
   children,
+  params,
 }: {
   children: React.ReactNode
+  params: { id: string }
 }) {
-  return children
+  return (
+    <AppShellLayout breadcrumbLabels={{ [params.id]: `Commitment #${params.id}` }}>
+      {children}
+    </AppShellLayout>
+  )
 }

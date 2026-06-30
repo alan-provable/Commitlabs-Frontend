@@ -1,5 +1,7 @@
 export { AppSidebar } from './AppSidebar'
 export type { AppSidebarProps } from './AppSidebar'
+export { AppBreadcrumbs, buildBreadcrumbItems } from './AppBreadcrumbs'
+export type { AppBreadcrumbsProps } from './AppBreadcrumbs'
 export { AppShellConnectionStatus } from './AppShellConnectionStatus'
 export { AppShellLayout } from './AppShellLayout'
 export type { AppShellLayoutProps } from './AppShellLayout'
